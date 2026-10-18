@@ -8,4 +8,9 @@ public class DungeonGame extends Game {
     public void create() {
         setScreen(new FirstScreen());
     }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
 }
