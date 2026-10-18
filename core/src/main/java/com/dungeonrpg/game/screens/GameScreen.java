@@ -1,28 +1,25 @@
 package com.dungeonrpg.game.screens;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class GameScreen extends ScreenAdapter {
 
-
-    private final SpriteBatch batch;
-    private final Texture playerTexture;
     private final OrthographicCamera camera;
     private final FitViewport viewport;
+    private final ShapeRenderer shapeRenderer;
+
+    private float playerX = 304;
+    private float playerY = 164;
 
     public GameScreen() {
-        batch = new SpriteBatch();
-        playerTexture = new Texture(
-            Gdx.files.internal("player.png")
-        );
         camera = new OrthographicCamera();
         viewport = new FitViewport(640, 360, camera);
+        shapeRenderer = new ShapeRenderer();
+
         viewport.apply(true);
     }
 
@@ -32,21 +29,23 @@ public class GameScreen extends ScreenAdapter {
 
         camera.update();
         viewport.apply();
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-        batch.draw(playerTexture, 304, 164, 32, 32);
-        batch.end();
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        shapeRenderer.setColor(0.9f, 0.6f, 0.2f, 1f);
+        shapeRenderer.rect(playerX, playerY, 32, 32);
+
+        shapeRenderer.end();
     }
 
     @Override
     public void resize(int width, int height) {
-            viewport.update(width, height, true);
+        viewport.update(width, height, true);
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
-        playerTexture.dispose();
+        shapeRenderer.dispose();
     }
-
 }
