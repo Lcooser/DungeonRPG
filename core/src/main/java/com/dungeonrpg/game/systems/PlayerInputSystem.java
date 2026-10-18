@@ -30,10 +30,10 @@ public class PlayerInputSystem extends IteratingSystem {
 
         direction.set(0,0);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) direction.y += 1;
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) direction.y -= 1;
-        if(Gdx.input.isKeyPressed(Input.Keys.A)) direction.x += 1;
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) direction.x -= 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) direction.y += 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) direction.y -= 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) direction.x -= 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) direction.x += 1;
 
         direction.nor();
 
