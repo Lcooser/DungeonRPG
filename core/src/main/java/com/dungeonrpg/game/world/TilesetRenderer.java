@@ -8,52 +8,27 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 
-/**
- * Draws a dungeon from a 16x8 tileset of 64px tiles.
- * Row 0: floors (0-7), decor (8-11), wall shadows (12-15). Row 1: wall faces (0-3), torch frames (4-7),
- * cracked wall (8), cobweb (15). Row 2: wall-top autotile.
- */
+/** Draws a dungeon from a 16x8 tileset of 64px tiles, using the theme layout to pick each tile. */
 public class TilesetRenderer {
 
     private static final int SOURCE_TILE = 64;
     private static final int COLUMNS = 16;
     private static final int ROWS = 8;
-
-    private static final int FLOOR_VARIANTS = 8;
-    private static final int DECOR_FIRST = 8;
-    private static final int DECOR_COUNT = 4;
-    private static final int SHADOW_FIRST = 12;
-    private static final int SHADOW_COUNT = 4;
-    private static final int FACE_VARIANTS = 4;
-    private static final int TORCH_FIRST = 4;
-    private static final int TORCH_FRAMES = 4;
-    private static final int CRACKED_FACE = 8;
-    private static final int COBWEB_FACE = 15;
+    private static final int FLOOR_ROW = 0;
+    private static final int FACE_ROW = 1;
+    private static final int WALL_TOP_ROW = 2;
     private static final float TORCH_FRAME_TIME = 0.14f;
-
-    // Wall-top tile per mask of floor neighbors (bit 1 north, 2 east, 8 west). South is never set, because a
-    // wall with floor to its south draws its face instead. Picked by matching the edge lines of each tile.
-    private static final int[][] WALL_TOP = new int[16][];
-
-    static {
-        WALL_TOP[0] = new int[]{3, 8};
-        WALL_TOP[1] = new int[]{10, 1};
-        WALL_TOP[2] = new int[]{7};
-        WALL_TOP[3] = new int[]{10};
-        WALL_TOP[8] = new int[]{4};
-        WALL_TOP[9] = new int[]{5};
-        WALL_TOP[10] = new int[]{4};
-        WALL_TOP[11] = new int[]{5};
-    }
-
-    private static final Color BOSS_FLOOR = new Color(1f, 0.62f, 0.58f, 1f);
 
     private final Texture texture;
     private final TextureRegion[][] regions = new TextureRegion[ROWS][COLUMNS];
     private final SpriteBatch batch = new SpriteBatch();
+    private final TilesetLayout layout;
     private float time;
 
-    public TilesetRenderer(String path) {
+    public TilesetRenderer(Theme theme) {
+        this.layout = theme.getLayout();
+        String path = theme.getTilesetPath();
+
         // Mipmaps keep the 64px art clean when it is drawn at half size.
         texture = new Texture(Gdx.files.internal(path), true);
         texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
@@ -93,7 +68,7 @@ public class TilesetRenderer {
                     continue;
                 }
 
-                batch.setColor(bossFloor ? BOSS_FLOOR : Color.WHITE);
+                batch.setColor(bossFloor ? layout.getBossFloorTint() : Color.WHITE);
                 batch.draw(region, x * size, y * size, size, size);
             }
         }
@@ -103,18 +78,19 @@ public class TilesetRenderer {
 
     private TextureRegion floor(DungeonMap map, int x, int y) {
         int hash = hash(x, y);
+        int[] shadows = layout.getShadows();
 
         // The tile under a wall face gets a soft shadow.
-        if (map.getTile(x, y + 1) == TileType.WALL) {
-            return regions[0][SHADOW_FIRST + hash % SHADOW_COUNT];
+        if (shadows.length > 0 && map.getTile(x, y + 1) == TileType.WALL) {
+            return pick(FLOOR_ROW, shadows, hash);
         }
 
         // A few tiles carry bones, puddles or rubble.
         if (hash % 23 == 0) {
-            return regions[0][DECOR_FIRST + (hash / 23) % DECOR_COUNT];
+            return pick(FLOOR_ROW, layout.getDecor(), hash / 23);
         }
 
-        return regions[0][hash % FLOOR_VARIANTS];
+        return pick(FLOOR_ROW, layout.getFloors(), hash);
     }
 
     private TextureRegion wall(DungeonMap map, int x, int y) {
@@ -130,23 +106,26 @@ public class TilesetRenderer {
         if (map.getTile(x + 1, y) == TileType.FLOOR) mask |= 2;
         if (map.getTile(x - 1, y) == TileType.FLOOR) mask |= 8;
 
-        int[] options = WALL_TOP[mask];
-
-        return regions[2][options[hash % options.length]];
+        return pick(WALL_TOP_ROW, layout.getWallTop(mask), hash);
     }
 
     private TextureRegion wallFace(int hash) {
-        // Torches burn on a few faces, out of phase so they do not flicker together.
-        if (hash % 9 == 0) {
-            int frame = (int) (time / TORCH_FRAME_TIME + hash) % TORCH_FRAMES;
+        int[] accents = layout.getAccents();
 
-            return regions[1][TORCH_FIRST + frame];
+        // Torches or crystals sit on a few faces; torches flicker out of phase so they do not blink together.
+        if (hash % 9 == 0) {
+            int index = layout.hasAnimatedAccents() ? (int) (time / TORCH_FRAME_TIME) + hash % accents.length : hash / 9;
+
+            return pick(FACE_ROW, accents, index);
         }
 
-        if (hash % 17 == 1) return regions[1][CRACKED_FACE];
-        if (hash % 29 == 2) return regions[1][COBWEB_FACE];
+        if (hash % 17 == 1) return pick(FACE_ROW, layout.getRareFaces(), hash / 17);
 
-        return regions[1][hash % FACE_VARIANTS];
+        return pick(FACE_ROW, layout.getFaces(), hash);
+    }
+
+    private TextureRegion pick(int row, int[] columns, int index) {
+        return regions[row][columns[index % columns.length]];
     }
 
     // Stable per-tile pseudo random value, so the map does not shimmer between frames.

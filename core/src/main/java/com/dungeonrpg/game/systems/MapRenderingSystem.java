@@ -25,7 +25,7 @@ public class MapRenderingSystem extends EntitySystem {
         this.camera = camera;
         this.map = map;
         this.theme = theme;
-        this.tileset = theme.getTilesetPath() == null ? null : new TilesetRenderer(theme.getTilesetPath());
+        this.tileset = theme.getTilesetPath() == null ? null : new TilesetRenderer(theme);
         this.shapeRenderer = new ShapeRenderer();
     }
 
