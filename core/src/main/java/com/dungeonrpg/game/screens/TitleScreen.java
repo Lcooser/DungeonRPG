@@ -19,6 +19,7 @@ import com.dungeonrpg.game.DungeonGame;
 import com.dungeonrpg.game.GameSession;
 import com.dungeonrpg.game.rpg.CharacterClass;
 import com.dungeonrpg.game.rpg.Difficulty;
+import com.dungeonrpg.game.world.Theme;
 import com.dungeonrpg.game.ui.ClassCard;
 import com.dungeonrpg.game.ui.PixelButton;
 import com.dungeonrpg.game.ui.PixelScale;
@@ -26,7 +27,7 @@ import com.dungeonrpg.game.ui.PixelScale;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** Start screen: pick a class, type a name and choose the difficulty. */
+/** Start screen: pick a class, type a name, choose the dungeon and the difficulty. */
 public class TitleScreen extends ScreenAdapter {
 
     private static final float TITLE_SCALE = 4f;
@@ -35,6 +36,7 @@ public class TitleScreen extends ScreenAdapter {
     private static final float NAME_WIDTH = 132f;
     private static final float NAME_HEIGHT = 16f;
     private static final float DIFFICULTY_WIDTH = 64f;
+    private static final float THEME_WIDTH = 104f;
     private static final float BUTTON_HEIGHT = 18f;
     private static final float START_WIDTH = 120f;
     private static final float TEXT_PADDING = 5f;
@@ -50,6 +52,7 @@ public class TitleScreen extends ScreenAdapter {
     private final Map<CharacterClass, Texture> portraits = new EnumMap<>(CharacterClass.class);
     private final Map<CharacterClass, ClassCard> cards = new EnumMap<>(CharacterClass.class);
     private final Map<Difficulty, PixelButton> difficultyButtons = new EnumMap<>(Difficulty.class);
+    private final Map<Theme, PixelButton> themeButtons = new EnumMap<>(Theme.class);
     private final TextField nameField;
 
     private boolean starting;
@@ -76,6 +79,7 @@ public class TitleScreen extends ScreenAdapter {
 
         root.add(createCards()).padBottom(SECTION_SPACING).row();
         root.add(createNameRow()).padBottom(SECTION_SPACING).row();
+        root.add(createThemeRow()).padBottom(SECTION_SPACING / 2f).row();
         root.add(createDifficultyRow()).padBottom(SECTION_SPACING).row();
 
         root.add(new PixelButton(atlas, font, "START", START_WIDTH, BUTTON_HEIGHT + 4f, this::start))
@@ -88,6 +92,7 @@ public class TitleScreen extends ScreenAdapter {
         stage.setKeyboardFocus(nameField);
 
         select(session.getCharacterClass());
+        selectTheme(session.getTheme());
         selectDifficulty(session.getDifficulty());
     }
 
@@ -159,6 +164,21 @@ public class TitleScreen extends ScreenAdapter {
         return field;
     }
 
+    private Table createThemeRow() {
+        Table row = new Table();
+
+        for (Theme theme : Theme.values()) {
+            PixelButton button = new PixelButton(
+                atlas, font, theme.getLabel(), THEME_WIDTH, BUTTON_HEIGHT, () -> selectTheme(theme)
+            );
+            themeButtons.put(theme, button);
+
+            row.add(button).size(THEME_WIDTH, BUTTON_HEIGHT).pad(0f, 3f, 0f, 3f);
+        }
+
+        return row;
+    }
+
     private Table createDifficultyRow() {
         Table row = new Table();
 
@@ -179,6 +199,14 @@ public class TitleScreen extends ScreenAdapter {
 
         for (Map.Entry<CharacterClass, ClassCard> entry : cards.entrySet()) {
             entry.getValue().setSelected(entry.getKey() == characterClass);
+        }
+    }
+
+    private void selectTheme(Theme theme) {
+        session.setTheme(theme);
+
+        for (Map.Entry<Theme, PixelButton> entry : themeButtons.entrySet()) {
+            entry.getValue().setSelected(entry.getKey() == theme);
         }
     }
 
