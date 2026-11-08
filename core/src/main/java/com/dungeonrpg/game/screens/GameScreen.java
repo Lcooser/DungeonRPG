@@ -26,12 +26,14 @@ import com.dungeonrpg.game.rpg.StatsCalculator;
 import com.dungeonrpg.game.systems.CameraSystem;
 import com.dungeonrpg.game.systems.DebugInputSystem;
 import com.dungeonrpg.game.systems.HealthSystem;
+import com.dungeonrpg.game.systems.HudSystem;
 import com.dungeonrpg.game.systems.MapRenderingSystem;
 import com.dungeonrpg.game.systems.MovementSystem;
 import com.dungeonrpg.game.systems.PlayerInputSystem;
 import com.dungeonrpg.game.systems.RenderingSystem;
 import com.dungeonrpg.game.systems.ResourceSystem;
 import com.dungeonrpg.game.tags.PlayerComponent;
+import com.dungeonrpg.game.ui.Hud;
 import com.dungeonrpg.game.world.DungeonMap;
 
 public class GameScreen extends ScreenAdapter {
@@ -54,6 +56,7 @@ public class GameScreen extends ScreenAdapter {
     private final DungeonMap map;
     private final MapRenderingSystem mapRenderingSystem;
     private final RenderingSystem renderingSystem;
+    private final HudSystem hudSystem;
     private final Texture playerTexture;
 
     public GameScreen() {
@@ -94,6 +97,9 @@ public class GameScreen extends ScreenAdapter {
 
         renderingSystem = new RenderingSystem(camera);
         engine.addSystem(renderingSystem);
+
+        hudSystem = new HudSystem(new Hud(VIEWPORT_WIDTH, VIEWPORT_HEIGHT));
+        engine.addSystem(hudSystem);
 
         createPlayer();
     }
@@ -154,12 +160,14 @@ public class GameScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         // A câmera é controlada pelo CameraSystem, então não recentraliza aqui.
         viewport.update(width, height, false);
+        hudSystem.resize(width, height);
     }
 
     @Override
     public void dispose() {
         mapRenderingSystem.dispose();
         renderingSystem.dispose();
+        hudSystem.dispose();
         playerTexture.dispose();
     }
 }
