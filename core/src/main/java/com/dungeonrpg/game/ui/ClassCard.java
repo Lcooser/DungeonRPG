@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -37,6 +38,8 @@ public class ClassCard extends Table {
         normalBackground = new NinePatchDrawable(atlas.createPatch("panel"));
         selectedBackground = new NinePatchDrawable(atlas.createPatch("panel-selected"));
 
+        // Tables ignore clicks on empty space by default, the whole card should be clickable.
+        setTouchable(Touchable.enabled);
         pad(PADDING);
         setBackground(normalBackground);
 
