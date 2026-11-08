@@ -20,6 +20,7 @@ public class DungeonMap {
     private final Random random;
     private final TileType[][] tiles;
     private final List<Room> rooms = new ArrayList<>();
+    private Room bossRoom;
 
     public DungeonMap(int width, int height, long seed) {
         this.width = width;
@@ -28,6 +29,27 @@ public class DungeonMap {
         this.tiles = new TileType[width][height];
 
         generate();
+        bossRoom = findBossRoom();
+    }
+
+    // The boss lives in the room farthest from the spawn, so reaching it takes a real trip.
+    private Room findBossRoom() {
+        Room spawn = rooms.get(0);
+        Room farthest = null;
+        float farthestDistance = 0f;
+
+        for (Room room : rooms) {
+            float dx = room.centerX() - spawn.centerX();
+            float dy = room.centerY() - spawn.centerY();
+            float distance = dx * dx + dy * dy;
+
+            if (room != spawn && distance > farthestDistance) {
+                farthest = room;
+                farthestDistance = distance;
+            }
+        }
+
+        return farthest;
     }
 
     private void generate() {
@@ -139,6 +161,17 @@ public class DungeonMap {
 
     public List<Room> getRooms() {
         return rooms;
+    }
+
+    /** The boss room, or null if the map only has one room. */
+    public Room getBossRoom() {
+        return bossRoom;
+    }
+
+    public boolean isBossRoom(int x, int y) {
+        return bossRoom != null
+            && x >= bossRoom.x && x < bossRoom.x + bossRoom.width
+            && y >= bossRoom.y && y < bossRoom.y + bossRoom.height;
     }
 
     public Room getSpawnRoom() {

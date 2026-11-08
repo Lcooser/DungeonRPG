@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -35,6 +37,14 @@ public class Hud {
     }
 
     private static final Color GAME_OVER_COLOR = new Color(0.85f, 0.2f, 0.2f, 1f);
+    private static final Color VICTORY_COLOR = new Color(0.98f, 0.84f, 0.35f, 1f);
+    private static final Color BOSS_NAME_COLOR = new Color(1f, 0.55f, 0.5f, 1f);
+    private static final float VICTORY_DELAY = 2.2f;
+    private static final float BOSS_BAR_WIDTH = 220f;
+    private static final float BOSS_BAR_RANGE = 320f;
+    private static final float BANNER_TOP = 34f;
+    private static final float BANNER_SECONDS = 7f;
+    private static final float BANNER_FADE = 1f;
     private static final Color LEVEL_COLOR = new Color(0.98f, 0.84f, 0.35f, 1f);
     // Leaves time for the death animation before the panel appears.
     private static final float GAME_OVER_DELAY = 1.4f;
@@ -46,6 +56,7 @@ public class Hud {
     private static final float BAR_HEIGHT = 11f;
     private static final float ROW_SPACING = 2f;
     private static final float STATS_TOP_SPACING = 6f;
+    private static final float PLAYER_CENTER_OFFSET = 16f;
 
     private final Stage stage;
     private final ScreenViewport viewport;
@@ -60,13 +71,21 @@ public class Hud {
     private final Label levelLabel;
     private final StatsPanel statsPanel;
     private final Minimap minimap;
+    private final BossCompass bossCompass;
+    private final PixelBar bossBar;
+    private final Label bossNameLabel;
+    private final Table bossBarLayer;
     private final GameOverOverlay gameOver;
+    private final GameOverOverlay victory;
     private final Listener listener;
     private final Vector2 pointer = new Vector2();
 
     private int shownLevel = -1;
+    private float playerCenterX;
+    private float playerCenterY;
+    private String shownBossName;
 
-    public Hud(CharacterClass characterClass, String playerName, DungeonMap map, Listener listener) {
+    public Hud(CharacterClass characterClass, String playerName, DungeonMap map, String bossName, Listener listener) {
         this.listener = listener;
 
         viewport = new ScreenViewport();
@@ -98,6 +117,9 @@ public class Hud {
 
         statsPanel = new StatsPanel(atlas, font, listener::onSpendPoint);
         minimap = new Minimap(atlas, map, iconTexture);
+        bossCompass = new BossCompass(atlas, font, 0f);
+        bossBar = new PixelBar(atlas, "bar-red", font, BOSS_BAR_WIDTH, BAR_HEIGHT);
+        bossNameLabel = new Label("", new Label.LabelStyle(font, BOSS_NAME_COLOR));
 
         Label.LabelStyle white = new Label.LabelStyle(font, Color.WHITE);
         levelLabel = new Label("", new Label.LabelStyle(font, LEVEL_COLOR));
@@ -126,14 +148,35 @@ public class Hud {
         root.setFillParent(true);
         root.top().pad(SCREEN_PADDING);
         root.add(left).expandX().top().left();
-        root.add(minimap).top().right();
+
+        Table right = new Table();
+        right.add(minimap).right().row();
+        right.add(bossCompass).size(minimap.getWidth(), BossCompass.HEIGHT).right().padTop(ROW_SPACING);
+        root.add(right).top().right();
 
         stage.addActor(root);
+
+        bossBarLayer = new Table();
+        bossBarLayer.setFillParent(true);
+        bossBarLayer.top().padTop(SCREEN_PADDING);
+        bossBarLayer.add(bossNameLabel).padBottom(ROW_SPACING).row();
+        bossBarLayer.add(bossBar).size(BOSS_BAR_WIDTH, BAR_HEIGHT);
+        bossBarLayer.setVisible(false);
+        stage.addActor(bossBarLayer);
+
+        if (bossName != null) {
+            stage.addActor(createObjectiveBanner(font, bossName));
+        }
 
         gameOver = new GameOverOverlay(
             atlas, font, "GAME OVER", GAME_OVER_COLOR, GAME_OVER_DELAY, listener::onRetry, listener::onMenu
         );
         stage.addActor(gameOver);
+
+        victory = new GameOverOverlay(
+            atlas, font, "VICTORY", VICTORY_COLOR, VICTORY_DELAY, listener::onRetry, listener::onMenu
+        );
+        stage.addActor(victory);
 
         // The stage always takes mouse input, since the stat buttons are clickable during play.
         Gdx.input.setInputProcessor(stage);
@@ -169,6 +212,57 @@ public class Hud {
 
         statsPanel.update(stats, level);
         minimap.updatePlayer(position.x, position.y);
+
+        // The position is the corner of the body box, close enough to the center for distances.
+        playerCenterX = position.x + PLAYER_CENTER_OFFSET;
+        playerCenterY = position.y + PLAYER_CENTER_OFFSET;
+    }
+
+    /** Updates the boss bar, compass and minimap marker. A null name means there is no boss. */
+    public void updateBoss(String name, HealthComponent health, float bossX, float bossY, boolean dead) {
+        boolean present = name != null;
+
+        minimap.setBossAlive(present && !dead);
+        bossCompass.update(playerCenterX, playerCenterY, bossX, bossY, present && !dead);
+
+        if (!present || dead) {
+            bossBarLayer.setVisible(false);
+
+            if (dead && !victory.isShown()) {
+                victory.show();
+            }
+
+            return;
+        }
+
+        if (!name.equals(shownBossName)) {
+            shownBossName = name;
+            bossNameLabel.setText(name);
+        }
+
+        float dx = bossX - playerCenterX;
+        float dy = bossY - playerCenterY;
+
+        // The bar only appears once the player is close enough to be in the fight.
+        bossBarLayer.setVisible(dx * dx + dy * dy <= BOSS_BAR_RANGE * BOSS_BAR_RANGE);
+        bossBar.setValue(health.current, health.max);
+    }
+
+    private Table createObjectiveBanner(BitmapFont font, String bossName) {
+        Table banner = new Table();
+        banner.setFillParent(true);
+        banner.top().padTop(BANNER_TOP);
+        banner.setTouchable(Touchable.disabled);
+        banner.add(new Label("DEFEAT THE " + bossName, new Label.LabelStyle(font, VICTORY_COLOR))).row();
+        banner.add(new Label("FOLLOW THE ARROW", new Label.LabelStyle(font, Color.WHITE))).padTop(ROW_SPACING);
+
+        banner.addAction(Actions.sequence(
+            Actions.delay(BANNER_SECONDS),
+            Actions.fadeOut(BANNER_FADE),
+            Actions.visible(false)
+        ));
+
+        return banner;
     }
 
     /** Shows the game over panel while the character is dead. */
@@ -194,7 +288,9 @@ public class Hud {
     public void render(float deltaTime) {
         viewport.apply();
 
-        if (gameOver.isInteractive() && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+        boolean endPanelOpen = gameOver.isInteractive() || victory.isInteractive();
+
+        if (endPanelOpen && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             listener.onRetry();
         }
 

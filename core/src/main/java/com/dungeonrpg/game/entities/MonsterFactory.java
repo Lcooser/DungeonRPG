@@ -17,6 +17,7 @@ import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.components.XpRewardComponent;
+import com.dungeonrpg.game.tags.BossComponent;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -78,6 +79,10 @@ public class MonsterFactory implements Disposable {
         monster.add(new AiComponent(type.getAggroRange()));
         monster.add(new MonsterComponent(type));
         monster.add(new XpRewardComponent(type.getXpReward()));
+
+        if (type.isBoss()) {
+            monster.add(new BossComponent());
+        }
 
         engine.addEntity(monster);
 

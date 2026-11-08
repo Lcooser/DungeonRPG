@@ -37,7 +37,12 @@ public class MapRenderingSystem extends EntitySystem {
             for (int y = minTileY; y <= maxTileY; y++) {
                 if (map.getTile(x, y) == TileType.FLOOR) {
                     boolean alternate = (x + y) % 2 == 0;
-                    shapeRenderer.setColor(alternate ? 0.22f : 0.2f, alternate ? 0.19f : 0.17f, 0.16f, 1f);
+
+                    if (map.isBossRoom(x, y)) {
+                        shapeRenderer.setColor(alternate ? 0.3f : 0.27f, alternate ? 0.14f : 0.12f, 0.13f, 1f);
+                    } else {
+                        shapeRenderer.setColor(alternate ? 0.22f : 0.2f, alternate ? 0.19f : 0.17f, 0.16f, 1f);
+                    }
                 } else if (map.isBorderWall(x, y)) {
                     shapeRenderer.setColor(0.38f, 0.38f, 0.46f, 1f);
                 } else {

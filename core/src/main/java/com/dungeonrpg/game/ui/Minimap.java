@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.dungeonrpg.game.world.DungeonMap;
 import com.dungeonrpg.game.world.TileType;
 
-/** Minimapa com névoa: só mostra o que o jogador já explorou, centrado nele. */
+/** Fog-of-war minimap centered on the player. The boss room and its skull marker are always visible. */
 public class Minimap extends Actor {
 
     private static final int VIEW_TILES_X = 48;
@@ -24,6 +24,8 @@ public class Minimap extends Actor {
     private static final Color ICON_OUTLINE_COLOR = new Color(0.9f, 0.75f, 0.35f, 1f);
 
     private static final int FLOOR_COLOR = Color.rgba8888(0.55f, 0.48f, 0.35f, 1f);
+    private static final int BOSS_FLOOR_COLOR = Color.rgba8888(0.6f, 0.2f, 0.2f, 1f);
+    private static final float MARKER_PULSE_SPEED = 4f;
     private static final int WALL_COLOR = Color.rgba8888(0.27f, 0.24f, 0.32f, 1f);
 
     private final DungeonMap map;
@@ -32,6 +34,7 @@ public class Minimap extends Actor {
     private final Texture texture;
     private final NinePatch frame;
     private final TextureRegion pixel;
+    private final TextureRegion bossMarker;
     private final Texture playerIcon;
 
     private float playerTileX;
@@ -39,6 +42,8 @@ public class Minimap extends Actor {
     private int lastRevealX = -1;
     private int lastRevealY = -1;
     private boolean dirty;
+    private boolean bossAlive;
+    private float time;
 
     public Minimap(TextureAtlas atlas, DungeonMap map, Texture playerIcon) {
         this.map = map;
@@ -46,10 +51,14 @@ public class Minimap extends Actor {
         this.revealed = new boolean[map.getWidth()][map.getHeight()];
         this.frame = atlas.createPatch("minimap-frame");
         this.pixel = atlas.findRegion("pixel");
+        this.bossMarker = atlas.findRegion("boss-marker");
 
         pixmap = new Pixmap(map.getWidth(), map.getHeight(), Pixmap.Format.RGBA8888);
         pixmap.setColor(0f, 0f, 0f, 0f);
         pixmap.fill();
+
+        paintBossRoom();
+        bossAlive = map.getBossRoom() != null;
 
         texture = new Texture(pixmap);
         texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -60,7 +69,22 @@ public class Minimap extends Actor {
         );
     }
 
-    /** Recebe a posição do jogador em coordenadas de mundo (pixels). */
+    // The boss room is drawn from the start so the player knows where to head.
+    private void paintBossRoom() {
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                if (map.isBossRoom(x, y) && map.getTile(x, y) == TileType.FLOOR) {
+                    pixmap.drawPixel(x, toPixmapY(y), BOSS_FLOOR_COLOR);
+                }
+            }
+        }
+    }
+
+    public void setBossAlive(boolean alive) {
+        bossAlive = alive && map.getBossRoom() != null;
+    }
+
+    /** Takes the player position in world coordinates (pixels). */
     public void updatePlayer(float worldX, float worldY) {
         playerTileX = worldX / DungeonMap.TILE_SIZE;
         playerTileY = worldY / DungeonMap.TILE_SIZE;
@@ -92,7 +116,7 @@ public class Minimap extends Actor {
         revealed[tileX][tileY] = true;
 
         if (map.getTile(tileX, tileY) == TileType.FLOOR) {
-            pixmap.drawPixel(tileX, toPixmapY(tileY), FLOOR_COLOR);
+            pixmap.drawPixel(tileX, toPixmapY(tileY), map.isBossRoom(tileX, tileY) ? BOSS_FLOOR_COLOR : FLOOR_COLOR);
             dirty = true;
         } else if (map.isBorderWall(tileX, tileY)) {
             pixmap.drawPixel(tileX, toPixmapY(tileY), WALL_COLOR);
@@ -100,7 +124,7 @@ public class Minimap extends Actor {
         }
     }
 
-    // O pixmap tem a origem no topo e o mapa tem a origem embaixo.
+    // The pixmap origin is at the top while the map origin is at the bottom.
     private int toPixmapY(int tileY) {
         return map.getHeight() - 1 - tileY;
     }
@@ -109,7 +133,9 @@ public class Minimap extends Actor {
     public void act(float delta) {
         super.act(delta);
 
-        // O envio para a GPU precisa acontecer fora do batch, por isso fica no act.
+        time += delta;
+
+        // The GPU upload has to happen outside the batch, so it lives in act.
         if (dirty) {
             texture.draw(pixmap, 0, 0);
             dirty = false;
@@ -140,13 +166,50 @@ public class Minimap extends Actor {
             false, false
         );
 
+        if (bossAlive) {
+            drawBossMarker(batch, parentAlpha, windowX, windowY, contentX, contentY, contentWidth, contentHeight);
+        }
+
         drawPlayerIcon(batch, parentAlpha, windowX, windowY, contentX, contentY, contentWidth, contentHeight);
 
         batch.setColor(1f, 1f, 1f, parentAlpha);
         frame.draw(batch, getX(), getY(), getWidth(), getHeight());
     }
 
-    // O rosto do personagem marca a posição, com uma borda para se destacar do mapa.
+    // When the boss room is outside the visible window the skull sticks to the minimap edge, pointing the way.
+    private void drawBossMarker(
+        Batch batch,
+        float parentAlpha,
+        int windowX,
+        int windowY,
+        float contentX,
+        float contentY,
+        float contentWidth,
+        float contentHeight
+    ) {
+        float size = bossMarker.getRegionWidth();
+        float tileX = map.getBossRoom().centerX() + 0.5f;
+        float tileY = map.getBossRoom().centerY() + 0.5f;
+
+        float markerX = MathUtils.clamp(
+            MathUtils.floor(contentX + (tileX - windowX) * PIXELS_PER_TILE - size / 2f),
+            contentX,
+            contentX + contentWidth - size
+        );
+
+        float markerY = MathUtils.clamp(
+            MathUtils.floor(contentY + (tileY - windowY) * PIXELS_PER_TILE - size / 2f),
+            contentY,
+            contentY + contentHeight - size
+        );
+
+        float pulse = 0.7f + 0.3f * MathUtils.sin(time * MARKER_PULSE_SPEED);
+
+        batch.setColor(1f, 1f, 1f, parentAlpha * pulse);
+        batch.draw(bossMarker, markerX, markerY);
+    }
+
+    // The character face marks the position, with a border to stand out from the map.
     private void drawPlayerIcon(
         Batch batch,
         float parentAlpha,

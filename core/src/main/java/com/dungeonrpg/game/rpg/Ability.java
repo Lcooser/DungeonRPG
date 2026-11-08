@@ -17,7 +17,9 @@ public enum Ability {
     SPIDER_BITE(Kind.MELEE, DamageType.PHYSICAL, 10f, 30f, CostType.NONE, 0f, 0.9f, 0.24f, 80f,
         EffectType.HIT_SPARK, null, null, 0f),
     SLIME_LUNGE(Kind.MELEE, DamageType.PHYSICAL, 8f, 28f, CostType.NONE, 0f, 1.2f, 0.24f, 60f,
-        null, null, null, 0f);
+        null, null, null, 0f),
+    BOSS_BITE(Kind.MELEE, DamageType.PHYSICAL, 24f, 56f, CostType.NONE, 0f, 1.1f, 0.24f, 220f,
+        EffectType.HIT_SPARK, null, null, 0f);
 
     public enum Kind {
         MELEE,
