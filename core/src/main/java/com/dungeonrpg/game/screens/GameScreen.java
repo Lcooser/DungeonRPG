@@ -13,19 +13,34 @@ import com.dungeonrpg.game.animation.CharacterAnimations;
 import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
 import com.dungeonrpg.game.components.FacingComponent;
+import com.dungeonrpg.game.components.HealthComponent;
+import com.dungeonrpg.game.components.ManaComponent;
 import com.dungeonrpg.game.components.PositionComponent;
+import com.dungeonrpg.game.components.StaminaComponent;
+import com.dungeonrpg.game.components.StatsComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.systems.AnimationSystem;
+import com.dungeonrpg.game.rpg.CharacterClass;
+import com.dungeonrpg.game.rpg.StatsCalculator;
 import com.dungeonrpg.game.systems.CameraSystem;
+import com.dungeonrpg.game.systems.DebugInputSystem;
+import com.dungeonrpg.game.systems.HealthSystem;
 import com.dungeonrpg.game.systems.MapRenderingSystem;
 import com.dungeonrpg.game.systems.MovementSystem;
 import com.dungeonrpg.game.systems.PlayerInputSystem;
 import com.dungeonrpg.game.systems.RenderingSystem;
+import com.dungeonrpg.game.systems.ResourceSystem;
 import com.dungeonrpg.game.tags.PlayerComponent;
 import com.dungeonrpg.game.world.DungeonMap;
 
 public class GameScreen extends ScreenAdapter {
+
+    private static final int VIEWPORT_WIDTH = 640;
+    private static final int VIEWPORT_HEIGHT = 360;
+
+    // Teclas de teste de vida e mana, devem sair quando o combate existir.
+    private static final boolean DEBUG_CONTROLS = true;
 
     private static final int MAP_WIDTH = 80;
     private static final int MAP_HEIGHT = 60;
@@ -44,7 +59,7 @@ public class GameScreen extends ScreenAdapter {
     public GameScreen() {
         OrthographicCamera camera = new OrthographicCamera();
 
-        viewport = new FitViewport(640, 360, camera);
+        viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
         viewport.apply(true);
 
         map = new DungeonMap(MAP_WIDTH, MAP_HEIGHT, System.currentTimeMillis());
@@ -63,6 +78,13 @@ public class GameScreen extends ScreenAdapter {
         engine = new Engine();
 
         engine.addSystem(new PlayerInputSystem());
+
+        if (DEBUG_CONTROLS) {
+            engine.addSystem(new DebugInputSystem());
+        }
+
+        engine.addSystem(new ResourceSystem());
+        engine.addSystem(new HealthSystem());
         engine.addSystem(new MovementSystem(map));
         engine.addSystem(new AnimationSystem());
         engine.addSystem(new CameraSystem(camera, map));
@@ -90,7 +112,10 @@ public class GameScreen extends ScreenAdapter {
         position.x = map.getSpawnX() - PLAYER_BODY_SIZE / 2f;
         position.y = map.getSpawnY() - PLAYER_BODY_SIZE / 2f;
 
+        StatsComponent stats = CharacterClass.WARRIOR.createStats();
+
         VelocityComponent velocity = new VelocityComponent();
+        velocity.speed = StatsCalculator.moveSpeed(stats);
 
         // Hitbox nos pés do personagem, menor que o sprite.
         ColliderComponent collider = new ColliderComponent();
@@ -108,6 +133,10 @@ public class GameScreen extends ScreenAdapter {
         player.add(animation);
         player.add(new FacingComponent());
         player.add(collider);
+        player.add(stats);
+        player.add(new HealthComponent(StatsCalculator.maxHealth(stats)));
+        player.add(new ManaComponent(StatsCalculator.maxMana(stats)));
+        player.add(new StaminaComponent(StatsCalculator.maxStamina(stats)));
         player.add(new PlayerComponent());
 
         engine.addEntity(player);
