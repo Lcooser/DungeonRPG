@@ -5,8 +5,14 @@ detectadas pelas faixas verticais ocupadas, e as colunas pela grade nominal da i
 frames de uma mesma linha costumam se tocar.
 
 Uso:
-    python tools/normalize_effects.py art/skills_sprites.png assets/sprites/effects_sheet.png \\
-        [--cell 192] [--columns 6] [--counts 5,5,4,4,4,6,4,6]
+    python tools/normalize_effects.py art/combat_effects_sprites.png assets/sprites/effects_sheet.png \\
+        [--cell 192] [--columns 6] [--counts 5,5,4,4,4,6,4,6] [--clean-alpha 40] [--fixed-rows]
+
+--clean-alpha  pixels with less alpha than this become fully transparent. Raise it for sheets that
+               came with a faint glow field in the background.
+
+--fixed-rows   split the image into evenly spaced rows instead of detecting them. Use it for icon
+               grids, where neighbouring icons are too close for the row detection.
 
 Dependencias: pillow, numpy.
 """
@@ -48,16 +54,24 @@ def main():
     parser.add_argument("--columns", type=int, default=6, help="Colunas da grade nominal da imagem.")
     parser.add_argument("--counts", default="5,5,4,4,4,6,4,6",
                         help="Quantidade de frames de cada linha, de cima para baixo.")
+    parser.add_argument("--clean-alpha", type=int, default=CLEAN_ALPHA)
+    parser.add_argument("--fixed-rows", action="store_true")
     args = parser.parse_args()
 
     expected = [int(value) for value in args.counts.split(",")]
     pixels = np.array(Image.open(args.source).convert("RGBA"))
 
     # O halo semitransparente da borda some, senao as faixas de cada linha se misturam.
-    pixels[pixels[:, :, 3] < CLEAN_ALPHA] = 0
+    pixels[pixels[:, :, 3] < args.clean_alpha] = 0
 
     height, width = pixels.shape[:2]
-    bands = occupied_runs((pixels[:, :, 3] > ROW_ALPHA).any(axis=1), ROW_GAP)
+    if args.fixed_rows:
+        step = height / len(expected)
+        bands = [(round(row * step), round((row + 1) * step) - 1) for row in range(len(expected))]
+        row_padding = 0
+    else:
+        bands = occupied_runs((pixels[:, :, 3] > ROW_ALPHA).any(axis=1), ROW_GAP)
+        row_padding = ROW_PADDING
 
     if len(bands) != len(expected):
         raise SystemExit(f"Linhas detectadas {len(bands)}, esperado {len(expected)}.")
@@ -67,8 +81,8 @@ def main():
     sheet = Image.new("RGBA", (args.columns * cell, len(bands) * cell), (0, 0, 0, 0))
 
     for row_index, (top, bottom) in enumerate(bands):
-        y0 = max(0, top - ROW_PADDING)
-        y1 = min(height, bottom + ROW_PADDING + 1)
+        y0 = max(0, top - row_padding)
+        y1 = min(height, bottom + row_padding + 1)
         frames = []
 
         for column in range(args.columns):
@@ -87,7 +101,7 @@ def main():
 
         # Os frames sao empacotados em sequencia, mesmo que a imagem tenha deixado uma coluna vazia.
         for column, (_, crop) in enumerate(frames):
-            ys, xs = np.where(crop[:, :, 3] > CLEAN_ALPHA)
+            ys, xs = np.where(crop[:, :, 3] > args.clean_alpha)
             frame = Image.fromarray(crop[ys.min():ys.max() + 1, xs.min():xs.max() + 1])
 
             if frame.width > cell or frame.height > cell:
