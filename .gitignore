@@ -165,3 +165,6 @@ Thumbs.db
 
 # Python
 __pycache__/
+
+# Source art, raw AI generations, generation briefs and notes (kept locally, not published)
+/art/

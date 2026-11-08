@@ -1,5 +1,0 @@
-{
-  "header_and_grid_passed": 88,
-  "failed": [],
-  "checks": "RGBA encoding, exact expected dimensions, row counts, frame capacity; no guarantee of true hand-authored animation or perfect transparency"
-}
