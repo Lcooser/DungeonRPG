@@ -5,9 +5,11 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.dungeonrpg.game.components.HealthComponent;
+import com.dungeonrpg.game.components.LevelComponent;
 import com.dungeonrpg.game.components.ManaComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
+import com.dungeonrpg.game.components.StatsComponent;
 import com.dungeonrpg.game.tags.DeadComponent;
 import com.dungeonrpg.game.tags.PlayerComponent;
 import com.dungeonrpg.game.ui.Hud;
@@ -26,6 +28,12 @@ public class HudSystem extends IteratingSystem {
     private final ComponentMapper<PositionComponent> positions =
         ComponentMapper.getFor(PositionComponent.class);
 
+    private final ComponentMapper<StatsComponent> stats =
+        ComponentMapper.getFor(StatsComponent.class);
+
+    private final ComponentMapper<LevelComponent> levels =
+        ComponentMapper.getFor(LevelComponent.class);
+
     private final ComponentMapper<DeadComponent> deads =
         ComponentMapper.getFor(DeadComponent.class);
 
@@ -36,7 +44,9 @@ public class HudSystem extends IteratingSystem {
             PlayerComponent.class,
             HealthComponent.class,
             StaminaComponent.class,
-            PositionComponent.class
+            PositionComponent.class,
+            StatsComponent.class,
+            LevelComponent.class
         ).get(), 6);
 
         this.hud = hud;
@@ -54,7 +64,9 @@ public class HudSystem extends IteratingSystem {
             healths.get(entity),
             manas.get(entity),
             staminas.get(entity),
-            positions.get(entity)
+            positions.get(entity),
+            stats.get(entity),
+            levels.get(entity)
         );
 
         hud.setDead(deads.has(entity));

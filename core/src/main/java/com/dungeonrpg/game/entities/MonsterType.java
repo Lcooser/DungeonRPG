@@ -4,10 +4,10 @@ import com.dungeonrpg.game.components.StatsComponent;
 import com.dungeonrpg.game.rpg.Ability;
 
 public enum MonsterType {
-    // nome da folha, direções, tamanho do desenho, caixa do corpo, hitbox (largura e altura), vida, defesa, velocidade, alcance de visão
-    SKELETON("skeleton", true, 72f, 32f, 20f, 14f, 120f, 5, 70f, 200f, Ability.SKELETON_SLASH),
-    SPIDER("spider", true, 84f, 36f, 30f, 16f, 180f, 4, 105f, 220f, Ability.SPIDER_BITE),
-    SLIME("slime", false, 60f, 28f, 22f, 12f, 80f, 0, 55f, 160f, Ability.SLIME_LUNGE);
+    // sheet, directional, sprite size, body size, hitbox w/h, health, defense, speed, aggro range, attack, xp
+    SKELETON("skeleton", true, 72f, 32f, 20f, 14f, 120f, 5, 70f, 200f, Ability.SKELETON_SLASH, 20),
+    SPIDER("spider", true, 84f, 36f, 30f, 16f, 180f, 4, 105f, 220f, Ability.SPIDER_BITE, 35),
+    SLIME("slime", false, 60f, 28f, 22f, 12f, 80f, 0, 55f, 160f, Ability.SLIME_LUNGE, 10);
 
     private final String sheetName;
     private final boolean directional;
@@ -20,6 +20,7 @@ public enum MonsterType {
     private final float speed;
     private final float aggroRange;
     private final Ability attack;
+    private final int xpReward;
 
     MonsterType(
         String sheetName,
@@ -32,7 +33,8 @@ public enum MonsterType {
         int defense,
         float speed,
         float aggroRange,
-        Ability attack
+        Ability attack,
+        int xpReward
     ) {
         this.sheetName = sheetName;
         this.directional = directional;
@@ -45,6 +47,7 @@ public enum MonsterType {
         this.speed = speed;
         this.aggroRange = aggroRange;
         this.attack = attack;
+        this.xpReward = xpReward;
     }
 
     public String getSheetPath() {
@@ -87,7 +90,11 @@ public enum MonsterType {
         return attack;
     }
 
-    /** Monstros só têm defesa, a vida e o dano vêm do tipo e da habilidade. */
+    public int getXpReward() {
+        return xpReward;
+    }
+
+    /** Monsters only have defense, health and damage come from the type and its ability. */
     public StatsComponent createStats() {
         StatsComponent stats = new StatsComponent();
         stats.defense = defense;

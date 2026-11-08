@@ -18,6 +18,7 @@ import com.dungeonrpg.game.components.AttackComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
 import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.HealthComponent;
+import com.dungeonrpg.game.components.LevelComponent;
 import com.dungeonrpg.game.components.ManaComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
@@ -27,6 +28,8 @@ import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.effects.Effects;
 import com.dungeonrpg.game.entities.MonsterFactory;
 import com.dungeonrpg.game.rpg.CharacterClass;
+import com.dungeonrpg.game.rpg.Progression;
+import com.dungeonrpg.game.rpg.StatType;
 import com.dungeonrpg.game.rpg.StatsCalculator;
 import com.dungeonrpg.game.systems.AnimationSystem;
 import com.dungeonrpg.game.systems.AttackSystem;
@@ -34,6 +37,7 @@ import com.dungeonrpg.game.systems.CameraSystem;
 import com.dungeonrpg.game.systems.CorpseSystem;
 import com.dungeonrpg.game.systems.DebugInputSystem;
 import com.dungeonrpg.game.systems.EffectSystem;
+import com.dungeonrpg.game.systems.ExperienceSystem;
 import com.dungeonrpg.game.systems.FloatingTextSystem;
 import com.dungeonrpg.game.systems.HealthSystem;
 import com.dungeonrpg.game.systems.HudSystem;
@@ -43,6 +47,7 @@ import com.dungeonrpg.game.systems.MonsterAiSystem;
 import com.dungeonrpg.game.systems.MonsterHealthBarSystem;
 import com.dungeonrpg.game.systems.MovementSystem;
 import com.dungeonrpg.game.systems.PlayerInputSystem;
+import com.dungeonrpg.game.systems.ProgressionSystem;
 import com.dungeonrpg.game.systems.ProjectileSystem;
 import com.dungeonrpg.game.systems.RenderingSystem;
 import com.dungeonrpg.game.systems.ResourceSystem;
@@ -51,7 +56,7 @@ import com.dungeonrpg.game.ui.Hud;
 import com.dungeonrpg.game.world.DungeonMap;
 import com.dungeonrpg.game.world.MonsterSpawner;
 
-public class GameScreen extends ScreenAdapter {
+public class GameScreen extends ScreenAdapter implements Hud.Listener {
 
     private static final int VIEWPORT_WIDTH = 640;
     private static final int VIEWPORT_HEIGHT = 360;
@@ -84,7 +89,9 @@ public class GameScreen extends ScreenAdapter {
     private final HudSystem hudSystem;
     private final Texture playerTexture;
     private final Texture playerTiredTexture;
+    private final Hud hud;
 
+    private Entity player;
     private boolean restarting;
 
     public GameScreen(DungeonGame game) {
@@ -116,7 +123,9 @@ public class GameScreen extends ScreenAdapter {
         effects = new Effects(engine);
         monsterFactory = new MonsterFactory(engine, session.getDifficulty().getMonsterSpeedMultiplier());
 
-        engine.addSystem(new PlayerInputSystem());
+        hud = new Hud(characterClass, session.getPlayerName(), map, this);
+
+        engine.addSystem(new PlayerInputSystem(hud::isPointerOverButton));
 
         if (DEBUG_CONTROLS) {
             engine.addSystem(new DebugInputSystem());
@@ -125,6 +134,8 @@ public class GameScreen extends ScreenAdapter {
         engine.addSystem(new MonsterAiSystem());
         engine.addSystem(new AttackSystem(effects));
         engine.addSystem(new ProjectileSystem(map, effects));
+        engine.addSystem(new ProgressionSystem(session.getDifficulty().getPlayerSpeedMultiplier()));
+        engine.addSystem(new ExperienceSystem(effects));
         engine.addSystem(new ResourceSystem());
         engine.addSystem(new HealthSystem(effects));
         engine.addSystem(new CorpseSystem());
@@ -146,7 +157,7 @@ public class GameScreen extends ScreenAdapter {
         healthBarSystem = new MonsterHealthBarSystem(camera);
         engine.addSystem(healthBarSystem);
 
-        hudSystem = new HudSystem(new Hud(characterClass, session.getPlayerName(), map, this::restart, this::returnToMenu));
+        hudSystem = new HudSystem(hud);
         engine.addSystem(hudSystem);
 
         createPlayer();
@@ -165,7 +176,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void createPlayer() {
-        Entity player = new Entity();
+        player = new Entity();
 
         // A posição é o canto da caixa de 32x32 do personagem, o sprite maior é centralizado nela.
         TextureComponent sprite = new TextureComponent();
@@ -211,9 +222,25 @@ public class GameScreen extends ScreenAdapter {
         }
 
         player.add(new StaminaComponent(StatsCalculator.maxStamina(stats)));
+        player.add(new LevelComponent());
         player.add(new PlayerComponent());
 
         engine.addEntity(player);
+    }
+
+    @Override
+    public void onRetry() {
+        restart();
+    }
+
+    @Override
+    public void onMenu() {
+        returnToMenu();
+    }
+
+    @Override
+    public void onSpendPoint(StatType stat) {
+        Progression.spendPoint(player, stat);
     }
 
     private void restart() {

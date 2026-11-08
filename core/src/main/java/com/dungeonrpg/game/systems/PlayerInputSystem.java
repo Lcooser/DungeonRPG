@@ -15,6 +15,8 @@ import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.tags.DeadComponent;
 import com.dungeonrpg.game.tags.PlayerComponent;
 
+import java.util.function.BooleanSupplier;
+
 public class PlayerInputSystem extends IteratingSystem {
 
     private static final float SPRINT_MULTIPLIER = 1.6f;
@@ -33,12 +35,16 @@ public class PlayerInputSystem extends IteratingSystem {
         ComponentMapper.getFor(AttackComponent.class);
 
     private final Vector2 direction = new Vector2();
+    // True while the pointer is over a HUD button, so clicking it does not also attack.
+    private final BooleanSupplier pointerOverUi;
 
-    public PlayerInputSystem() {
+    public PlayerInputSystem(BooleanSupplier pointerOverUi) {
         super(Family.all(
             PlayerComponent.class,
             VelocityComponent.class
         ).exclude(DeadComponent.class).get(), 0);
+
+        this.pointerOverUi = pointerOverUi;
     }
 
     @Override
@@ -63,7 +69,7 @@ public class PlayerInputSystem extends IteratingSystem {
         velocity.x = direction.x * speed;
         velocity.y = direction.y * speed;
 
-        // O personagem já olha para onde o jogador aponta, mesmo se atacar no mesmo frame.
+        // Face the pressed direction right away so an attack in the same frame goes that way.
         FacingComponent facing = facings.get(entity);
 
         if (facing != null && !direction.isZero()) {
@@ -78,9 +84,11 @@ public class PlayerInputSystem extends IteratingSystem {
 
         if (attack == null) return;
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.J) || Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+        boolean pointerFree = !pointerOverUi.getAsBoolean();
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.J) || pointerFree && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             attack.requested = attack.primary;
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.K) || Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.K) || pointerFree && Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
             attack.requested = attack.secondary;
         }
     }

@@ -16,15 +16,16 @@ import com.dungeonrpg.game.components.MonsterComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
+import com.dungeonrpg.game.components.XpRewardComponent;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-/** Cria monstros e guarda as folhas de cada tipo, carregadas só na primeira vez que o tipo aparece. */
+/** Creates monsters and caches each type's sheet, loaded the first time the type appears. */
 public class MonsterFactory implements Disposable {
 
     private static final int SHEET_CELL_SIZE = 160;
-    // Os pés ficam um pouco acima da borda da célula, na mesma proporção do jogador (2px em 72px).
+    // Feet sit slightly above the cell edge, same ratio as the player (2px in 72px).
     private static final float FEET_OFFSET_RATIO = 2f / 72f;
 
     private final Engine engine;
@@ -37,7 +38,7 @@ public class MonsterFactory implements Disposable {
         this.speedMultiplier = speedMultiplier;
     }
 
-    /** Cria o monstro com o centro do corpo em (x, y) no mundo. */
+    /** Creates a monster with the body centered at (x, y) in world coordinates. */
     public Entity spawn(MonsterType type, float x, float y) {
         Entity monster = new Entity();
 
@@ -76,6 +77,7 @@ public class MonsterFactory implements Disposable {
         monster.add(new AttackComponent(type.getAttack(), null));
         monster.add(new AiComponent(type.getAggroRange()));
         monster.add(new MonsterComponent(type));
+        monster.add(new XpRewardComponent(type.getXpReward()));
 
         engine.addEntity(monster);
 

@@ -143,6 +143,10 @@ public class Effects implements Disposable {
     }
 
     public void spawnDamageNumber(float x, float y, float amount, Color color) {
+        spawnText(x, y, String.valueOf(Math.round(amount)), color);
+    }
+
+    public void spawnText(float x, float y, String value, Color color) {
         Entity number = new Entity();
 
         PositionComponent position = new PositionComponent();
@@ -150,7 +154,7 @@ public class Effects implements Disposable {
         position.y = y;
 
         FloatingTextComponent text = new FloatingTextComponent();
-        text.text = String.valueOf(Math.round(amount));
+        text.text = value;
         text.color.set(color);
 
         number.add(position);
