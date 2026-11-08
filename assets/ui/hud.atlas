@@ -54,12 +54,41 @@ pixel
   orig: 1, 1
   offset: 0, 0
   index: -1
+bar-green
+  rotate: false
+  xy: 82, 0
+  size: 2, 6
+  orig: 2, 6
+  offset: 0, 0
+  index: -1
 panel
   rotate: false
   xy: 0, 42
   size: 16, 16
   split: 5, 5, 5, 5
   orig: 16, 16
+  offset: 0, 0
+  index: -1
+panel-selected
+  rotate: false
+  xy: 46, 42
+  size: 16, 16
+  split: 5, 5, 5, 5
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+boss-marker
+  rotate: false
+  xy: 64, 42
+  size: 11, 11
+  orig: 11, 11
+  offset: 0, 0
+  index: -1
+arrow
+  rotate: false
+  xy: 78, 42
+  size: 11, 11
+  orig: 11, 11
   offset: 0, 0
   index: -1
 button

@@ -79,7 +79,24 @@ BAR_COLORS = {
     "red": ((235, 110, 100), (190, 40, 40), (130, 25, 30), (85, 15, 20)),
     "blue": ((120, 170, 245), (45, 100, 210), (30, 65, 150), (20, 40, 100)),
     "yellow": ((250, 225, 120), (214, 170, 40), (160, 115, 25), (105, 75, 15)),
+    "green": ((150, 235, 140), (70, 180, 80), (40, 125, 55), (25, 80, 40)),
 }
+
+SKULL = [
+    "..#####..",
+    ".#######.",
+    "#########",
+    "##oo#oo##",
+    "##oo#oo##",
+    "#########",
+    ".###.###.",
+    "..#.#.#..",
+    "..#.#.#..",
+]
+BONE = (236, 226, 200, 255)
+SOCKET = (150, 20, 20, 255)
+MARKER_OUTLINE = (60, 8, 8, 255)
+ARROW_FILL = (250, 214, 90, 255)
 
 
 def generate_font():
@@ -181,6 +198,62 @@ def panel_frame():
     return image
 
 
+def panel_selected():
+    size = 16
+    image = Image.new("RGBA", (size, size), (52, 42, 34, 255))
+    draw = ImageDraw.Draw(image)
+
+    ring(draw, 0, size, OUTLINE, OUTLINE)
+    ring(draw, 1, size, (255, 240, 170, 255), BRASS)
+    ring(draw, 2, size, BRASS_LIGHT, BRASS_LIGHT)
+    ring(draw, 3, size, OUTLINE, OUTLINE)
+
+    return image
+
+
+def outlined(image, color):
+    """Adds a 1px outline around the opaque pixels, growing the image by 2px."""
+    size = (image.width + 2, image.height + 2)
+    base = Image.new("RGBA", size, CLEAR)
+    base.paste(image, (1, 1))
+    result = base.copy()
+
+    for x in range(size[0]):
+        for y in range(size[1]):
+            if base.getpixel((x, y))[3] != 0:
+                continue
+
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+
+                if 0 <= nx < size[0] and 0 <= ny < size[1] and base.getpixel((nx, ny))[3] != 0:
+                    result.putpixel((x, y), color)
+                    break
+
+    return result
+
+
+def boss_marker():
+    image = Image.new("RGBA", (9, 9), CLEAR)
+
+    for y, row in enumerate(SKULL):
+        for x, cell in enumerate(row):
+            if cell == "#":
+                image.putpixel((x, y), BONE)
+            elif cell == "o":
+                image.putpixel((x, y), SOCKET)
+
+    return outlined(image, MARKER_OUTLINE)
+
+
+def arrow():
+    image = Image.new("RGBA", (9, 9), CLEAR)
+    draw = ImageDraw.Draw(image)
+    draw.polygon([(0, 3), (4, 3), (4, 0), (8, 4), (4, 8), (4, 5), (0, 5)], fill=ARROW_FILL)
+
+    return outlined(image, OUTLINE)
+
+
 def button(hover):
     size = 12
     body = (74, 62, 52, 255) if not hover else (104, 86, 62, 255)
@@ -221,7 +294,11 @@ def generate_atlas():
     place("bar-blue", bar_fill(BAR_COLORS["blue"]), 70, 0)
     place("bar-yellow", bar_fill(BAR_COLORS["yellow"]), 74, 0)
     place("pixel", Image.new("RGBA", (1, 1), (255, 255, 255, 255)), 80, 0)
+    place("bar-green", bar_fill(BAR_COLORS["green"]), 82, 0)
     place("panel", panel_frame(), 0, 42, split=(5, 5, 5, 5))
+    place("panel-selected", panel_selected(), 46, 42, split=(5, 5, 5, 5))
+    place("boss-marker", boss_marker(), 64, 42)
+    place("arrow", arrow(), 78, 42)
     place("button", button(False), 18, 42, split=(3, 3, 3, 3))
     place("button-over", button(True), 32, 42, split=(3, 3, 3, 3))
 
