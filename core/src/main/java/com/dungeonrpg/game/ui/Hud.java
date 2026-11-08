@@ -2,61 +2,136 @@ package com.dungeonrpg.game.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.dungeonrpg.game.components.HealthComponent;
 import com.dungeonrpg.game.components.ManaComponent;
+import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
+import com.dungeonrpg.game.rpg.CharacterClass;
+import com.dungeonrpg.game.world.DungeonMap;
 
 public class Hud {
 
-    private static final float SCREEN_PADDING = 8f;
+    // Tamanho de referência do jogo, usado para escolher a escala do HUD.
+    private static final float DESIGN_WIDTH = 640f;
+    private static final float DESIGN_HEIGHT = 360f;
+
+    private static final float SCREEN_PADDING = 6f;
+    private static final float PORTRAIT_SIZE = 40f;
+    private static final float INFO_PADDING = 4f;
+    private static final float BAR_WIDTH = 96f;
+    private static final float BAR_HEIGHT = 11f;
+    private static final float ROW_SPACING = 2f;
 
     private final Stage stage;
-    private final Skin skin;
-    private final ResourceBar healthBar;
-    private final ResourceBar manaBar;
-    private final ResourceBar staminaBar;
+    private final ScreenViewport viewport;
+    private final TextureAtlas atlas;
+    private final BitmapFont font;
+    private final Texture portraitTexture;
+    private final PixelBar healthBar;
+    private final PixelBar manaBar;
+    private final PixelBar staminaBar;
+    private final Minimap minimap;
 
-    public Hud(float viewportWidth, float viewportHeight) {
-        stage = new Stage(new FitViewport(viewportWidth, viewportHeight));
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+    public Hud(CharacterClass characterClass, DungeonMap map) {
+        viewport = new ScreenViewport();
+        applyPixelScale(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        healthBar = new ResourceBar(skin, "HP", new Color(0.8f, 0.15f, 0.15f, 1f));
-        manaBar = new ResourceBar(skin, "MP", new Color(0.2f, 0.4f, 0.9f, 1f));
-        staminaBar = new ResourceBar(skin, "SP", new Color(0.9f, 0.75f, 0.2f, 1f));
+        stage = new Stage(viewport);
+        atlas = new TextureAtlas(Gdx.files.internal("ui/hud.atlas"));
+
+        font = new BitmapFont(Gdx.files.internal("ui/pixel-font.fnt"));
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        // Cada classe tem o seu retrato em ui/portrait_<classe>.png.
+        portraitTexture = new Texture(
+            Gdx.files.internal("ui/portrait_" + characterClass.name().toLowerCase() + ".png")
+        );
+        portraitTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+        healthBar = new PixelBar(atlas, "bar-red", font, BAR_WIDTH, BAR_HEIGHT);
+        staminaBar = new PixelBar(atlas, "bar-yellow", font, BAR_WIDTH, BAR_HEIGHT);
+        manaBar = characterClass.usesMana()
+            ? new PixelBar(atlas, "bar-blue", font, BAR_WIDTH, BAR_HEIGHT)
+            : null;
+
+        minimap = new Minimap(atlas, map);
+
+        Table info = new Table();
+        info.add(new Label(characterClass.name(), new Label.LabelStyle(font, Color.WHITE)))
+            .left()
+            .padBottom(ROW_SPACING)
+            .row();
+
+        addBar(info, healthBar);
+        addBar(info, manaBar);
+        addBar(info, staminaBar);
+
+        Table status = new Table();
+        status.add(new Portrait(atlas, portraitTexture)).size(PORTRAIT_SIZE).top();
+        status.add(info).padLeft(INFO_PADDING).top().left();
 
         Table root = new Table();
         root.setFillParent(true);
-        root.top().left().pad(SCREEN_PADDING);
-
-        healthBar.addTo(root);
-        manaBar.addTo(root);
-        staminaBar.addTo(root);
+        root.top().pad(SCREEN_PADDING);
+        root.add(status).expandX().top().left();
+        root.add(minimap).top().right();
 
         stage.addActor(root);
     }
 
-    public void update(HealthComponent health, ManaComponent mana, StaminaComponent stamina) {
-        healthBar.update(health.current, health.max);
-        manaBar.update(mana.current, mana.max);
-        staminaBar.update(stamina.current, stamina.max);
+    private void addBar(Table table, PixelBar bar) {
+        if (bar == null) return;
+
+        table.add(bar).size(BAR_WIDTH, BAR_HEIGHT).left().padBottom(ROW_SPACING).row();
+    }
+
+    /** A mana é opcional, só as classes que a usam têm essa barra. */
+    public void update(
+        HealthComponent health,
+        ManaComponent mana,
+        StaminaComponent stamina,
+        PositionComponent position
+    ) {
+        healthBar.setValue(health.current, health.max);
+        staminaBar.setValue(stamina.current, stamina.max);
+
+        if (manaBar != null && mana != null) {
+            manaBar.setValue(mana.current, mana.max);
+        }
+
+        minimap.updatePlayer(position.x, position.y);
+    }
+
+    // Escala inteira, senão a pixel art fica com pixels de tamanhos diferentes.
+    private void applyPixelScale(int width, int height) {
+        int scale = Math.max(1, Math.round(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT)));
+
+        viewport.setUnitsPerPixel(1f / scale);
     }
 
     public void render(float deltaTime) {
-        stage.getViewport().apply();
+        viewport.apply();
         stage.act(deltaTime);
         stage.draw();
     }
 
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        applyPixelScale(width, height);
+        viewport.update(width, height, true);
     }
 
     public void dispose() {
+        minimap.dispose();
         stage.dispose();
-        skin.dispose();
+        atlas.dispose();
+        font.dispose();
+        portraitTexture.dispose();
     }
 }

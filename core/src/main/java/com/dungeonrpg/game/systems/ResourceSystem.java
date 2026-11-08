@@ -13,7 +13,8 @@ import com.dungeonrpg.game.tags.DeadComponent;
 
 public class ResourceSystem extends IteratingSystem {
 
-    private static final float STAMINA_REGEN_DELAY = 1f;
+    private static final float MANA_REGEN_DELAY = 1f;
+    private static final float STAMINA_REGEN_DELAY = 0.75f;
     private static final float STAMINA_RECOVERY_RATIO = 0.25f;
 
     private final ComponentMapper<StatsComponent> stats =
@@ -32,7 +33,6 @@ public class ResourceSystem extends IteratingSystem {
         super(Family.all(
             StatsComponent.class,
             HealthComponent.class,
-            ManaComponent.class,
             StaminaComponent.class
         ).exclude(DeadComponent.class).get(), 1);
     }
@@ -48,11 +48,10 @@ public class ResourceSystem extends IteratingSystem {
         health.max = StatsCalculator.maxHealth(entityStats);
         health.current = Math.min(health.current, health.max);
 
-        mana.max = StatsCalculator.maxMana(entityStats);
-        mana.current = Math.min(
-            mana.max,
-            mana.current + StatsCalculator.manaRegen(entityStats) * deltaTime
-        );
+        // Nem toda classe usa mana.
+        if (mana != null) {
+            regenerateMana(mana, entityStats, deltaTime);
+        }
 
         stamina.max = StatsCalculator.maxStamina(entityStats);
         stamina.current = Math.min(stamina.current, stamina.max);
@@ -68,5 +67,19 @@ public class ResourceSystem extends IteratingSystem {
         if (stamina.exhausted && stamina.current >= stamina.max * STAMINA_RECOVERY_RATIO) {
             stamina.exhausted = false;
         }
+    }
+
+    private void regenerateMana(ManaComponent mana, StatsComponent entityStats, float deltaTime) {
+        mana.max = StatsCalculator.maxMana(entityStats);
+        mana.timeSinceUse += deltaTime;
+
+        if (mana.timeSinceUse >= MANA_REGEN_DELAY) {
+            mana.current = Math.min(
+                mana.max,
+                mana.current + StatsCalculator.manaRegen(entityStats) * deltaTime
+            );
+        }
+
+        mana.current = Math.min(mana.current, mana.max);
     }
 }

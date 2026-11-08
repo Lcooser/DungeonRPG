@@ -6,6 +6,8 @@ public class ManaComponent implements Component {
 
     public float current;
     public float max;
+    // Tempo desde o último gasto, a regeneração só começa depois de uma pausa.
+    public float timeSinceUse;
 
     public ManaComponent(float max) {
         this.max = max;
@@ -16,6 +18,7 @@ public class ManaComponent implements Component {
         if (current < amount) return false;
 
         current -= amount;
+        timeSinceUse = 0f;
         return true;
     }
 }

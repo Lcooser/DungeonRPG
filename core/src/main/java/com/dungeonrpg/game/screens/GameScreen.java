@@ -44,6 +44,8 @@ public class GameScreen extends ScreenAdapter {
     // Teclas de teste de vida e mana, devem sair quando o combate existir.
     private static final boolean DEBUG_CONTROLS = true;
 
+    private static final CharacterClass PLAYER_CLASS = CharacterClass.BARBARIAN;
+
     private static final int MAP_WIDTH = 80;
     private static final int MAP_HEIGHT = 60;
 
@@ -98,7 +100,7 @@ public class GameScreen extends ScreenAdapter {
         renderingSystem = new RenderingSystem(camera);
         engine.addSystem(renderingSystem);
 
-        hudSystem = new HudSystem(new Hud(VIEWPORT_WIDTH, VIEWPORT_HEIGHT));
+        hudSystem = new HudSystem(new Hud(PLAYER_CLASS, map));
         engine.addSystem(hudSystem);
 
         createPlayer();
@@ -118,7 +120,7 @@ public class GameScreen extends ScreenAdapter {
         position.x = map.getSpawnX() - PLAYER_BODY_SIZE / 2f;
         position.y = map.getSpawnY() - PLAYER_BODY_SIZE / 2f;
 
-        StatsComponent stats = CharacterClass.WARRIOR.createStats();
+        StatsComponent stats = PLAYER_CLASS.createStats();
 
         VelocityComponent velocity = new VelocityComponent();
         velocity.speed = StatsCalculator.moveSpeed(stats);
@@ -141,7 +143,11 @@ public class GameScreen extends ScreenAdapter {
         player.add(collider);
         player.add(stats);
         player.add(new HealthComponent(StatsCalculator.maxHealth(stats)));
-        player.add(new ManaComponent(StatsCalculator.maxMana(stats)));
+
+        if (PLAYER_CLASS.usesMana()) {
+            player.add(new ManaComponent(StatsCalculator.maxMana(stats)));
+        }
+
         player.add(new StaminaComponent(StatsCalculator.maxStamina(stats)));
         player.add(new PlayerComponent());
 

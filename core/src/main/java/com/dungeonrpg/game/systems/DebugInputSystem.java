@@ -12,11 +12,11 @@ import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.tags.DeadComponent;
 import com.dungeonrpg.game.tags.PlayerComponent;
 
-/** Teclas de teste para exercitar vida e mana até o combate existir: 1 dano, 2 gasta mana, 3 restaura tudo. */
+/** Teclas de teste para exercitar vida e mana até o combate existir: 1 dano, 2 gasta mana (ou stamina sem mana), 3 restaura tudo. */
 public class DebugInputSystem extends IteratingSystem {
 
     private static final float DEBUG_DAMAGE = 15f;
-    private static final float DEBUG_MANA_COST = 10f;
+    private static final float DEBUG_RESOURCE_COST = 20f;
 
     private final ComponentMapper<HealthComponent> healths =
         ComponentMapper.getFor(HealthComponent.class);
@@ -31,7 +31,6 @@ public class DebugInputSystem extends IteratingSystem {
         super(Family.all(
             PlayerComponent.class,
             HealthComponent.class,
-            ManaComponent.class,
             StaminaComponent.class
         ).get(), 0);
     }
@@ -47,12 +46,20 @@ public class DebugInputSystem extends IteratingSystem {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            mana.spend(DEBUG_MANA_COST);
+            if (mana != null) {
+                mana.spend(DEBUG_RESOURCE_COST);
+            } else {
+                stamina.spend(DEBUG_RESOURCE_COST);
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
             health.current = health.max;
-            mana.current = mana.max;
+
+            if (mana != null) {
+                mana.current = mana.max;
+            }
+
             stamina.current = stamina.max;
             stamina.exhausted = false;
             entity.remove(DeadComponent.class);

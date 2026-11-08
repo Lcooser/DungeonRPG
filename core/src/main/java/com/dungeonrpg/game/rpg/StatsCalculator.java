@@ -23,11 +23,11 @@ public final class StatsCalculator {
     }
 
     public static float manaRegen(StatsComponent stats) {
-        return 1f + stats.intelligence * 0.5f;
+        return 2f + stats.intelligence * 0.3f;
     }
 
     public static float staminaRegen(StatsComponent stats) {
-        return 10f + stats.agility * 2f;
+        return 10f + stats.agility;
     }
 
     public static float moveSpeed(StatsComponent stats) {
