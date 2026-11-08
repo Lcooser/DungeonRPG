@@ -18,7 +18,7 @@ design, not copied from any existing game. Transparent background, no text, no w
 
 - Depois de gerar, salve a imagem bruta em `art/` e rode o normalizador (veja cada seção). Se ele reclamar da contagem de frames, regenere só a linha com problema.
 
-Convenção de nomes: bruto em `art/<nome>_sprites.png`, normalizado em `assets/sprites/<nome>_sheet.png`.
+Convenção de nomes: bruto em `art/<nome>_sprites.png`, normalizado em `assets/sprites/<characters|monsters>/<nome>_sheet.png`.
 
 ---
 
@@ -120,7 +120,7 @@ Descrições de ataque por tipo:
 Normalizar (todas):
 
 ```
-python tools/normalize_spritesheet.py art/{class}_{weapon}_sprites.png assets/sprites/{class}_{weapon}_sheet.png
+python tools/normalize_spritesheet.py art/{class}_{weapon}_sprites.png assets/sprites/characters/{class}_{weapon}_sheet.png
 ```
 
 Se a linha de andar tiver 5 frames em vez de 6, use `--counts 4,5,5,4,6,5,4,6,5,8 --pad-to 4,6,5,4,6,5,4,6,5,8`.
@@ -129,7 +129,7 @@ Se a linha de andar tiver 5 frames em vez de 6, use `--counts 4,5,5,4,6,5,4,6,5,
 
 ## 3. Partículas e efeitos por arma
 
-Uma folha por tipo de arma. Grade de 6 colunas, células de 192x192, efeito centrado, desenhado virado para a direita (o jogo gira). Normalizar com `python tools/normalize_effects.py art/{weapon}_vfx.png assets/sprites/{weapon}_vfx.png --counts ...`.
+Uma folha por tipo de arma. Grade de 6 colunas, células de 192x192, efeito centrado, desenhado virado para a direita (o jogo gira). Normalizar com `python tools/normalize_effects.py art/{weapon}_vfx.png assets/sprites/vfx/{weapon}_vfx.png --counts ...`.
 
 Modelo:
 
@@ -278,7 +278,7 @@ O jogo carrega cada tier como **uma folha própria**, no mesmo layout das folhas
 Normalizar (alinha os frames e gera a folha final):
 
 ```
-python tools/normalize_spritesheet.py art/skeleton_archer_t2_sprites.png assets/sprites/skeleton_archer_t2_sheet.png
+python tools/normalize_spritesheet.py art/skeleton_archer_t2_sprites.png assets/sprites/monsters/skeleton_archer_t2_sheet.png
 ```
 
 Para ativar a arte nova, troque o nome da folha da entrada correspondente em `MonsterType` (por exemplo, de `"skeleton"` para `"skeleton_t2"`). Hoje os tiers 2 e 3 reaproveitam a folha do tier 1 com uma cor diferente, só para o jogo já ter a progressão de dificuldade e de drops.
@@ -378,7 +378,7 @@ Row 1: a golden light pillar rising from the ground with sparkles, 8 frames, bri
 Row 2: an expanding golden ring on the floor with small stars, 8 frames.
 ```
 
-Normalizar: `python tools/normalize_effects.py art/levelup_vfx.png assets/sprites/levelup_vfx.png --columns 8 --counts 8,8 --clean-alpha 70`.
+Normalizar: `python tools/normalize_effects.py art/levelup_vfx.png assets/sprites/vfx/levelup_vfx.png --columns 8 --counts 8,8 --clean-alpha 70`.
 
 ## 9. Sons
 
