@@ -13,6 +13,9 @@ import java.util.Map;
  *
  * Linhas: 0-2 de frente (idle, walk, attack), 3-5 de costas, 6-8 de lado (direita) e
  * 9 com hurt (2 frames) seguido de death (6 frames). A esquerda é a direita espelhada.
+ *
+ * A folha de cansaço é opcional: 3 linhas (frente, costas, lado) de 4 frames. Sem ela, o
+ * personagem usa a animação de idle quando está cansado.
  */
 public class CharacterAnimations {
 
@@ -24,6 +27,7 @@ public class CharacterAnimations {
     private static final int IDLE_FRAMES = 4;
     private static final int WALK_FRAMES = 6;
     private static final int ATTACK_FRAMES = 5;
+    private static final int TIRED_FRAMES = 4;
     private static final int HURT_FRAMES = 2;
     private static final int DEATH_FRAMES = 6;
 
@@ -31,11 +35,21 @@ public class CharacterAnimations {
         new EnumMap<>(AnimationType.class);
 
     public CharacterAnimations(Texture texture, int cellSize) {
+        this(texture, null, cellSize);
+    }
+
+    public CharacterAnimations(Texture texture, Texture tiredTexture, int cellSize) {
         TextureRegion[][] cells = TextureRegion.split(texture, cellSize, cellSize);
 
         addDirectional(AnimationType.IDLE, cells, 0, IDLE_FRAMES);
         addDirectional(AnimationType.WALK, cells, 1, WALK_FRAMES);
         addDirectional(AnimationType.ATTACK, cells, 2, ATTACK_FRAMES);
+
+        if (tiredTexture != null) {
+            addTired(TextureRegion.split(tiredTexture, cellSize, cellSize));
+        } else {
+            animations.put(AnimationType.TIRED, animations.get(AnimationType.IDLE));
+        }
 
         addUniform(AnimationType.HURT, cells[EFFECTS_ROW], 0, HURT_FRAMES);
         addUniform(AnimationType.DEATH, cells[EFFECTS_ROW], HURT_FRAMES, DEATH_FRAMES);
@@ -50,6 +64,17 @@ public class CharacterAnimations {
         byDirection.put(Direction.LEFT, create(type, cells[RIGHT_ROW + rowOffset], 0, frameCount, true));
 
         animations.put(type, byDirection);
+    }
+
+    private void addTired(TextureRegion[][] cells) {
+        Map<Direction, Animation<TextureRegion>> byDirection = new EnumMap<>(Direction.class);
+
+        byDirection.put(Direction.DOWN, create(AnimationType.TIRED, cells[0], 0, TIRED_FRAMES, false));
+        byDirection.put(Direction.UP, create(AnimationType.TIRED, cells[1], 0, TIRED_FRAMES, false));
+        byDirection.put(Direction.RIGHT, create(AnimationType.TIRED, cells[2], 0, TIRED_FRAMES, false));
+        byDirection.put(Direction.LEFT, create(AnimationType.TIRED, cells[2], 0, TIRED_FRAMES, true));
+
+        animations.put(AnimationType.TIRED, byDirection);
     }
 
     /** Animações sem variação de direção usam o mesmo frame para qualquer lado. */

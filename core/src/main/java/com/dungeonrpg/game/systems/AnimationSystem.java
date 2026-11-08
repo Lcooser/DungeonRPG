@@ -8,8 +8,10 @@ import com.dungeonrpg.game.animation.AnimationType;
 import com.dungeonrpg.game.animation.Direction;
 import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.FacingComponent;
+import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
+import com.dungeonrpg.game.tags.DeadComponent;
 
 public class AnimationSystem extends IteratingSystem {
 
@@ -24,6 +26,12 @@ public class AnimationSystem extends IteratingSystem {
 
     private final ComponentMapper<TextureComponent> textures =
         ComponentMapper.getFor(TextureComponent.class);
+
+    private final ComponentMapper<StaminaComponent> staminas =
+        ComponentMapper.getFor(StaminaComponent.class);
+
+    private final ComponentMapper<DeadComponent> deads =
+        ComponentMapper.getFor(DeadComponent.class);
 
     public AnimationSystem() {
         super(Family.all(
@@ -47,13 +55,24 @@ public class AnimationSystem extends IteratingSystem {
             facing.direction = directionOf(velocity);
         }
 
-        changeType(animation, moving ? AnimationType.WALK : AnimationType.IDLE);
+        changeType(animation, chooseType(entity, moving));
 
         animation.stateTime += deltaTime;
 
         sprite.region = animation.animations
             .get(animation.type, facing.direction)
             .getKeyFrame(animation.stateTime);
+    }
+
+    private AnimationType chooseType(Entity entity, boolean moving) {
+        // Morto mantém o último frame, porque a animação de morte não repete.
+        if (deads.has(entity)) return AnimationType.DEATH;
+
+        if (moving) return AnimationType.WALK;
+
+        StaminaComponent stamina = staminas.get(entity);
+
+        return stamina != null && stamina.exhausted ? AnimationType.TIRED : AnimationType.IDLE;
     }
 
     private Direction directionOf(VelocityComponent velocity) {

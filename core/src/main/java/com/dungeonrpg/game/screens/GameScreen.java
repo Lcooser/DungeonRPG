@@ -54,6 +54,8 @@ public class GameScreen extends ScreenAdapter {
     private static final int MAP_HEIGHT = 60;
 
     private static final String PLAYER_SHEET_PATH = "sprites/barbarian_sheet.png";
+    // Folha opcional com a animação de cansaço, sem ela o personagem usa o idle.
+    private static final String PLAYER_TIRED_SHEET_PATH = "sprites/barbarian_tired.png";
     private static final int PLAYER_SHEET_CELL_SIZE = 160;
     private static final float PLAYER_BODY_SIZE = 32f;
     private static final float PLAYER_SPRITE_SIZE = 72f;
@@ -66,6 +68,7 @@ public class GameScreen extends ScreenAdapter {
     private final RenderingSystem renderingSystem;
     private final HudSystem hudSystem;
     private final Texture playerTexture;
+    private final Texture playerTiredTexture;
 
     private boolean restarting;
 
@@ -87,6 +90,9 @@ public class GameScreen extends ScreenAdapter {
 
         // O sprite é reduzido em tela, então usa mipmaps para não serrilhar.
         playerTexture = loadSheet(PLAYER_SHEET_PATH);
+        playerTiredTexture = Gdx.files.internal(PLAYER_TIRED_SHEET_PATH).exists()
+            ? loadSheet(PLAYER_TIRED_SHEET_PATH)
+            : null;
 
         engine = new Engine();
 
@@ -152,7 +158,7 @@ public class GameScreen extends ScreenAdapter {
         collider.height = 14f;
 
         AnimationComponent animation = new AnimationComponent();
-        animation.animations = new CharacterAnimations(playerTexture, PLAYER_SHEET_CELL_SIZE);
+        animation.animations = new CharacterAnimations(playerTexture, playerTiredTexture, PLAYER_SHEET_CELL_SIZE);
 
         player.add(position);
         player.add(velocity);
@@ -206,5 +212,9 @@ public class GameScreen extends ScreenAdapter {
         renderingSystem.dispose();
         hudSystem.dispose();
         playerTexture.dispose();
+
+        if (playerTiredTexture != null) {
+            playerTiredTexture.dispose();
+        }
     }
 }
