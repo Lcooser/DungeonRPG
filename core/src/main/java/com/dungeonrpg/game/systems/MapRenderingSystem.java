@@ -1,28 +1,41 @@
 package com.dungeonrpg.game.systems;
 
 import com.badlogic.ashley.core.EntitySystem;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.dungeonrpg.game.world.DungeonMap;
+import com.dungeonrpg.game.world.Theme;
 import com.dungeonrpg.game.world.TileType;
+import com.dungeonrpg.game.world.TilesetRenderer;
 
 public class MapRenderingSystem extends EntitySystem {
 
     private final OrthographicCamera camera;
     private final DungeonMap map;
+    private final Theme theme;
+    // Themes without tileset art fall back to flat colored tiles.
+    private final TilesetRenderer tileset;
     private final ShapeRenderer shapeRenderer;
 
-    public MapRenderingSystem(OrthographicCamera camera, DungeonMap map) {
+    public MapRenderingSystem(OrthographicCamera camera, DungeonMap map, Theme theme) {
         super(3);
 
         this.camera = camera;
         this.map = map;
+        this.theme = theme;
+        this.tileset = theme.getTilesetPath() == null ? null : new TilesetRenderer(theme.getTilesetPath());
         this.shapeRenderer = new ShapeRenderer();
     }
 
     @Override
     public void update(float deltaTime) {
+        if (tileset != null) {
+            tileset.render(camera, map, deltaTime);
+            return;
+        }
+
         int tileSize = DungeonMap.TILE_SIZE;
 
         int minTileX = Math.max(0, MathUtils.floor((camera.position.x - camera.viewportWidth / 2f) / tileSize));
@@ -36,15 +49,18 @@ public class MapRenderingSystem extends EntitySystem {
         for (int x = minTileX; x <= maxTileX; x++) {
             for (int y = minTileY; y <= maxTileY; y++) {
                 if (map.getTile(x, y) == TileType.FLOOR) {
-                    boolean alternate = (x + y) % 2 == 0;
+                    // Checkerboard: every other tile is slightly darker.
+                    float shade = (x + y) % 2 == 0 ? 1f : 0.9f;
 
                     if (map.isBossRoom(x, y)) {
-                        shapeRenderer.setColor(alternate ? 0.3f : 0.27f, alternate ? 0.14f : 0.12f, 0.13f, 1f);
+                        shapeRenderer.setColor(0.3f * shade, 0.13f * shade, 0.12f * shade, 1f);
                     } else {
-                        shapeRenderer.setColor(alternate ? 0.22f : 0.2f, alternate ? 0.19f : 0.17f, 0.16f, 1f);
+                        Color floor = theme.getFloorColor();
+
+                        shapeRenderer.setColor(floor.r * shade, floor.g * shade, floor.b * shade, 1f);
                     }
                 } else if (map.isBorderWall(x, y)) {
-                    shapeRenderer.setColor(0.38f, 0.38f, 0.46f, 1f);
+                    shapeRenderer.setColor(theme.getWallColor());
                 } else {
                     continue;
                 }
@@ -58,5 +74,9 @@ public class MapRenderingSystem extends EntitySystem {
 
     public void dispose() {
         shapeRenderer.dispose();
+
+        if (tileset != null) {
+            tileset.dispose();
+        }
     }
 }

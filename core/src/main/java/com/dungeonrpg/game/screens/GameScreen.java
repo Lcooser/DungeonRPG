@@ -158,7 +158,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         engine.addSystem(new AnimationSystem());
         engine.addSystem(new CameraSystem(camera, map));
 
-        mapRenderingSystem = new MapRenderingSystem(camera, map);
+        mapRenderingSystem = new MapRenderingSystem(camera, map, session.getTheme());
         engine.addSystem(mapRenderingSystem);
 
         renderingSystem = new RenderingSystem(camera);
