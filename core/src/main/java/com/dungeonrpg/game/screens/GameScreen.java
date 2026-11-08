@@ -9,10 +9,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.dungeonrpg.game.animation.CharacterAnimations;
+import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
+import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
+import com.dungeonrpg.game.systems.AnimationSystem;
 import com.dungeonrpg.game.systems.CameraSystem;
 import com.dungeonrpg.game.systems.MapRenderingSystem;
 import com.dungeonrpg.game.systems.MovementSystem;
@@ -25,6 +29,10 @@ public class GameScreen extends ScreenAdapter {
 
     private static final int MAP_WIDTH = 80;
     private static final int MAP_HEIGHT = 60;
+
+    private static final int PLAYER_SHEET_CELL_SIZE = 160;
+    private static final float PLAYER_BODY_SIZE = 32f;
+    private static final float PLAYER_SPRITE_SIZE = 72f;
 
     private final Engine engine;
     private final FitViewport viewport;
@@ -41,20 +49,22 @@ public class GameScreen extends ScreenAdapter {
 
         map = new DungeonMap(MAP_WIDTH, MAP_HEIGHT, System.currentTimeMillis());
 
+        // O sprite é reduzido em tela, então usa mipmaps para não serrilhar.
         playerTexture = new Texture(
-            Gdx.files.internal("sprites/barbarian.png")
+            Gdx.files.internal("sprites/barbarian_sheet.png"),
+            true
         );
 
-        // Preserva os pixels definidos ao ampliar a imagem.
         playerTexture.setFilter(
-            Texture.TextureFilter.Nearest,
-            Texture.TextureFilter.Nearest
+            Texture.TextureFilter.MipMapLinearLinear,
+            Texture.TextureFilter.Linear
         );
 
         engine = new Engine();
 
         engine.addSystem(new PlayerInputSystem());
         engine.addSystem(new MovementSystem(map));
+        engine.addSystem(new AnimationSystem());
         engine.addSystem(new CameraSystem(camera, map));
 
         mapRenderingSystem = new MapRenderingSystem(camera, map);
@@ -69,14 +79,16 @@ public class GameScreen extends ScreenAdapter {
     private void createPlayer() {
         Entity player = new Entity();
 
+        // A posição é o canto da caixa de 32x32 do personagem, o sprite maior é centralizado nela.
         TextureComponent sprite = new TextureComponent();
-        sprite.texture = playerTexture;
-        sprite.width = 32f;
-        sprite.height = 32f;
+        sprite.width = PLAYER_SPRITE_SIZE;
+        sprite.height = PLAYER_SPRITE_SIZE;
+        sprite.offsetX = (PLAYER_BODY_SIZE - PLAYER_SPRITE_SIZE) / 2f;
+        sprite.offsetY = -2f;
 
         PositionComponent position = new PositionComponent();
-        position.x = map.getSpawnX() - sprite.width / 2f;
-        position.y = map.getSpawnY() - sprite.height / 2f;
+        position.x = map.getSpawnX() - PLAYER_BODY_SIZE / 2f;
+        position.y = map.getSpawnY() - PLAYER_BODY_SIZE / 2f;
 
         VelocityComponent velocity = new VelocityComponent();
 
@@ -87,9 +99,14 @@ public class GameScreen extends ScreenAdapter {
         collider.width = 20f;
         collider.height = 14f;
 
+        AnimationComponent animation = new AnimationComponent();
+        animation.animations = new CharacterAnimations(playerTexture, PLAYER_SHEET_CELL_SIZE);
+
         player.add(position);
         player.add(velocity);
         player.add(sprite);
+        player.add(animation);
+        player.add(new FacingComponent());
         player.add(collider);
         player.add(new PlayerComponent());
 

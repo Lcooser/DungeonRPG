@@ -42,10 +42,12 @@ public class RenderingSystem extends IteratingSystem {
         PositionComponent position = positions.get(entity);
         TextureComponent sprite = textures.get(entity);
 
+        if (sprite.region == null) return;
+
         batch.draw(
-            sprite.texture,
-            position.x,
-            position.y,
+            sprite.region,
+            position.x + sprite.offsetX,
+            position.y + sprite.offsetY,
             sprite.width,
             sprite.height
         );

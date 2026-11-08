@@ -42,13 +42,13 @@ public class CameraSystem extends IteratingSystem {
         float halfViewportHeight = camera.viewportHeight / 2f;
 
         camera.position.x = MathUtils.clamp(
-            position.x + sprite.width / 2f,
+            position.x + sprite.offsetX + sprite.width / 2f,
             halfViewportWidth,
             map.getPixelWidth() - halfViewportWidth
         );
 
         camera.position.y = MathUtils.clamp(
-            position.y + sprite.height / 2f,
+            position.y + sprite.offsetY + sprite.height / 2f,
             halfViewportHeight,
             map.getPixelHeight() - halfViewportHeight
         );
