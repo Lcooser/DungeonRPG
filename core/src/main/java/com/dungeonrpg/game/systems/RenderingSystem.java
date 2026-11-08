@@ -22,7 +22,7 @@ public class RenderingSystem extends IteratingSystem {
         super(Family.all(
             PositionComponent.class,
             TextureComponent.class
-        ).get(), 2);
+        ).get(), 4);
 
         this.camera = camera;
         this.batch = new SpriteBatch();
@@ -30,7 +30,6 @@ public class RenderingSystem extends IteratingSystem {
 
     @Override
     public void update(float deltaTime) {
-        camera.update();
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();

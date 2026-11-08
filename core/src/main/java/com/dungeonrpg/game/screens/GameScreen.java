@@ -9,18 +9,27 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.dungeonrpg.game.components.ColliderComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
+import com.dungeonrpg.game.systems.CameraSystem;
+import com.dungeonrpg.game.systems.MapRenderingSystem;
 import com.dungeonrpg.game.systems.MovementSystem;
 import com.dungeonrpg.game.systems.PlayerInputSystem;
 import com.dungeonrpg.game.systems.RenderingSystem;
 import com.dungeonrpg.game.tags.PlayerComponent;
+import com.dungeonrpg.game.world.DungeonMap;
 
 public class GameScreen extends ScreenAdapter {
 
+    private static final int MAP_WIDTH = 80;
+    private static final int MAP_HEIGHT = 60;
+
     private final Engine engine;
     private final FitViewport viewport;
+    private final DungeonMap map;
+    private final MapRenderingSystem mapRenderingSystem;
     private final RenderingSystem renderingSystem;
     private final Texture playerTexture;
 
@@ -29,6 +38,8 @@ public class GameScreen extends ScreenAdapter {
 
         viewport = new FitViewport(640, 360, camera);
         viewport.apply(true);
+
+        map = new DungeonMap(MAP_WIDTH, MAP_HEIGHT, System.currentTimeMillis());
 
         playerTexture = new Texture(
             Gdx.files.internal("sprites/barbarian.png")
@@ -43,7 +54,11 @@ public class GameScreen extends ScreenAdapter {
         engine = new Engine();
 
         engine.addSystem(new PlayerInputSystem());
-        engine.addSystem(new MovementSystem());
+        engine.addSystem(new MovementSystem(map));
+        engine.addSystem(new CameraSystem(camera, map));
+
+        mapRenderingSystem = new MapRenderingSystem(camera, map);
+        engine.addSystem(mapRenderingSystem);
 
         renderingSystem = new RenderingSystem(camera);
         engine.addSystem(renderingSystem);
@@ -54,20 +69,28 @@ public class GameScreen extends ScreenAdapter {
     private void createPlayer() {
         Entity player = new Entity();
 
-        PositionComponent position = new PositionComponent();
-        position.x = 304;
-        position.y = 164;
-
-        VelocityComponent velocity = new VelocityComponent();
-
         TextureComponent sprite = new TextureComponent();
         sprite.texture = playerTexture;
         sprite.width = 32f;
         sprite.height = 32f;
 
+        PositionComponent position = new PositionComponent();
+        position.x = map.getSpawnX() - sprite.width / 2f;
+        position.y = map.getSpawnY() - sprite.height / 2f;
+
+        VelocityComponent velocity = new VelocityComponent();
+
+        // Hitbox nos pés do personagem, menor que o sprite.
+        ColliderComponent collider = new ColliderComponent();
+        collider.offsetX = 6f;
+        collider.offsetY = 0f;
+        collider.width = 20f;
+        collider.height = 14f;
+
         player.add(position);
         player.add(velocity);
         player.add(sprite);
+        player.add(collider);
         player.add(new PlayerComponent());
 
         engine.addEntity(player);
@@ -83,13 +106,14 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
+        // A câmera é controlada pelo CameraSystem, então não recentraliza aqui.
+        viewport.update(width, height, false);
     }
 
     @Override
     public void dispose() {
+        mapRenderingSystem.dispose();
         renderingSystem.dispose();
         playerTexture.dispose();
     }
 }
-
