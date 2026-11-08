@@ -8,7 +8,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.dungeonrpg.game.animation.CharacterAnimations;
 import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
@@ -40,6 +40,9 @@ public class GameScreen extends ScreenAdapter {
 
     private static final int VIEWPORT_WIDTH = 640;
     private static final int VIEWPORT_HEIGHT = 360;
+    // Em telas mais largas o mundo se estende até este limite, em vez de ficar com faixas pretas.
+    private static final int MAX_VIEWPORT_WIDTH = 960;
+    private static final int MAX_VIEWPORT_HEIGHT = 540;
 
     // Teclas de teste de vida e mana, devem sair quando o combate existir.
     private static final boolean DEBUG_CONTROLS = true;
@@ -54,7 +57,7 @@ public class GameScreen extends ScreenAdapter {
     private static final float PLAYER_SPRITE_SIZE = 72f;
 
     private final Engine engine;
-    private final FitViewport viewport;
+    private final ExtendViewport viewport;
     private final DungeonMap map;
     private final MapRenderingSystem mapRenderingSystem;
     private final RenderingSystem renderingSystem;
@@ -64,7 +67,13 @@ public class GameScreen extends ScreenAdapter {
     public GameScreen() {
         OrthographicCamera camera = new OrthographicCamera();
 
-        viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
+        viewport = new ExtendViewport(
+            VIEWPORT_WIDTH,
+            VIEWPORT_HEIGHT,
+            MAX_VIEWPORT_WIDTH,
+            MAX_VIEWPORT_HEIGHT,
+            camera
+        );
         viewport.apply(true);
 
         map = new DungeonMap(MAP_WIDTH, MAP_HEIGHT, System.currentTimeMillis());
