@@ -25,6 +25,53 @@ public enum Ability {
         .knockback(140f).slow(0.5f, 3f).effect(EffectType.FROST_NOVA).icon(EffectType.FROST_NOVA, 4)),
     ARCANE_BLINK(blink(150f).cooldown(7f).cost(CostType.MANA, 25f)
         .effect(EffectType.ARCANE_BLINK).icon(EffectType.ARCANE_BLINK, 3)),
+    SKELETON_ARROW(projectile(DamageType.PHYSICAL, 12f).cooldown(2.2f).knockback(60f).speed(230f)
+        .flightRange(300f).hitSize(12f).projectileEffect(EffectType.ARROW, EffectType.HIT_SPARK)),
+    NECRO_BOLT(projectile(DamageType.MAGICAL, 14f).cooldown(2.4f).knockback(70f).speed(190f)
+        .flightRange(300f).hitSize(14f).projectileEffect(EffectType.NECROTIC_BOLT, EffectType.MAGIC_IMPACT)),
+    CROSSBOW_SHOT(projectile(DamageType.PHYSICAL, 16f).cooldown(2.6f).knockback(90f).speed(260f)
+        .flightRange(320f).hitSize(12f).projectileEffect(EffectType.CROSSBOW_BOLT, EffectType.HIT_SPARK)),
+    VENOM_GLOB_SHOT(projectile(DamageType.PHYSICAL, 10f).cooldown(2f).knockback(60f).speed(170f)
+        .flightRange(230f).hitSize(14f).projectileEffect(EffectType.VENOM_GLOB, EffectType.HIT_SPARK)),
+    IMP_FIREBALL_SHOT(projectile(DamageType.MAGICAL, 13f).cooldown(2.2f).knockback(80f).speed(180f)
+        .flightRange(300f).hitSize(14f).projectileEffect(EffectType.IMP_FIREBALL, EffectType.HIT_SPARK)),
+    EMBER_MACE(melee(DamageType.PHYSICAL, 18f).range(36f).cooldown(1.5f).knockback(160f)
+        .effect(EffectType.HIT_SPARK)),
+    HOUND_BITE(melee(DamageType.PHYSICAL, 10f).range(28f).cooldown(0.8f).knockback(110f)
+        .effect(EffectType.HIT_SPARK)),
+    DEATH_KNIGHT_CLEAVE(melee(DamageType.PHYSICAL, 22f).range(40f).cooldown(1.4f).knockback(170f)
+        .effect(EffectType.SWORD_SLASH)),
+    SOUL_WRAITH_TOUCH(melee(DamageType.MAGICAL, 14f).range(30f).cooldown(1.1f).knockback(60f)
+        .effect(EffectType.MAGIC_IMPACT)),
+    FORGE_SLAM(melee(DamageType.PHYSICAL, 24f).range(44f).cooldown(1.8f).knockback(200f)
+        .effect(EffectType.HIT_SPARK)),
+    DRAGON_CLAW(melee(DamageType.PHYSICAL, 28f).range(64f).cooldown(1.2f).knockback(240f)
+        .effect(EffectType.HIT_SPARK)),
+
+    LICH_BOLT(projectile(DamageType.MAGICAL, 22f).cooldown(1.8f).knockback(110f).speed(210f)
+        .flightRange(340f).hitSize(18f).projectileEffect(EffectType.NECROTIC_BOLT, EffectType.MAGIC_IMPACT)),
+    DEATH_NOVA(area(DamageType.MAGICAL).damage(34f).range(110f).cooldown(9f).windup(0.6f).duration(0.9f)
+        .knockback(200f).effect(EffectType.DEATH_NOVA)),
+    SOUL_BARRAGE(projectile(DamageType.MAGICAL, 12f).cooldown(7f).windup(0.4f).duration(0.8f).knockback(80f)
+        .speed(200f).flightRange(300f).hitSize(14f).volley(5, 40f)
+        .projectileEffect(EffectType.NECROTIC_BOLT, EffectType.MAGIC_IMPACT)),
+    SUMMON_UNDEAD(summon(2).cooldown(14f).windup(0.5f).duration(0.9f).effect(EffectType.SUMMON_UNDEAD)),
+
+    VENOM_SPIT(projectile(DamageType.PHYSICAL, 20f).cooldown(6f).windup(0.4f).duration(0.8f).knockback(100f)
+        .speed(180f).flightRange(320f).hitSize(20f)
+        .projectileEffect(EffectType.VENOM_GLOB, EffectType.HIT_SPARK)),
+    WEB_TRAP(area(DamageType.PHYSICAL).damage(8f).range(64f).cooldown(9f).windup(0.8f).duration(1f)
+        .targeted().slow(0.4f, 3f).effect(EffectType.WEB_TRAP)),
+    BROOD_SUMMONING(summon(2).cooldown(15f).windup(0.5f).duration(0.9f).effect(EffectType.BROOD_SUMMONING)),
+
+    DRAGON_BREATH(projectile(DamageType.MAGICAL, 14f).cooldown(8f).windup(0.5f).duration(1f).knockback(120f)
+        .speed(220f).flightRange(200f).hitSize(16f).volley(7, 70f)
+        .projectileEffect(EffectType.MAGMA_BREATH, EffectType.HIT_SPARK)),
+    METEOR_RAIN(area(DamageType.MAGICAL).damage(40f).range(72f).cooldown(9f).windup(1f).duration(1.2f)
+        .targeted().knockback(220f).effect(EffectType.METEOR_RAIN)),
+    LAVA_ERUPTION(area(DamageType.MAGICAL).damage(36f).range(120f).cooldown(12f).windup(0.7f).duration(1f)
+        .knockback(240f).effect(EffectType.LAVA_ERUPTION)),
+
     SKELETON_SLASH(melee(DamageType.PHYSICAL, 14f).range(34f).cooldown(1.3f).knockback(150f)
         .effect(EffectType.SWORD_SLASH)),
     SPIDER_BITE(melee(DamageType.PHYSICAL, 10f).range(30f).cooldown(0.9f).knockback(120f)
@@ -39,7 +86,8 @@ public enum Ability {
         PROJECTILE,
         AREA,
         BUFF,
-        TELEPORT
+        TELEPORT,
+        SUMMON
     }
 
     public enum DamageType {
@@ -85,6 +133,12 @@ public enum Ability {
     // Distance a projectile flies before fizzling out, and the size of its hit area.
     private final float flightRange;
     private final float hitSize;
+    // Projectiles fired at once, spread over an arc in degrees.
+    private final int volleyCount;
+    private final float volleySpread;
+    // Area hits that land where the target stood when the cast began.
+    private final boolean targeted;
+    private final int summonCount;
     private final EffectType fizzleEffect;
     private final EffectType effect;
     private final boolean effectAttached;
@@ -118,6 +172,10 @@ public enum Ability {
         projectileSpeed = builder.projectileSpeed;
         flightRange = builder.flightRange;
         hitSize = builder.hitSize;
+        volleyCount = builder.volleyCount;
+        volleySpread = builder.volleySpread;
+        targeted = builder.targeted;
+        summonCount = builder.summonCount;
         fizzleEffect = builder.fizzleEffect;
         effect = builder.effect;
         effectAttached = builder.effectAttached;
@@ -137,6 +195,13 @@ public enum Ability {
 
     private static Builder area(DamageType type) {
         return new Builder(Kind.AREA, type);
+    }
+
+    private static Builder summon(int count) {
+        Builder builder = new Builder(Kind.SUMMON, DamageType.MAGICAL);
+        builder.summonCount = count;
+
+        return builder;
     }
 
     private static Builder buff() {
@@ -176,6 +241,10 @@ public enum Ability {
         private float projectileSpeed;
         private float flightRange;
         private float hitSize = 8f;
+        private int volleyCount = 1;
+        private float volleySpread;
+        private boolean targeted;
+        private int summonCount;
         private EffectType fizzleEffect;
         private EffectType effect;
         private boolean effectAttached;
@@ -257,6 +326,22 @@ public enum Ability {
 
         private Builder speed(float value) {
             projectileSpeed = value;
+            return this;
+        }
+
+        private Builder windup(float value) {
+            windup = value;
+            return this;
+        }
+
+        private Builder volley(int count, float spreadDegrees) {
+            volleyCount = count;
+            volleySpread = spreadDegrees;
+            return this;
+        }
+
+        private Builder targeted() {
+            targeted = true;
             return this;
         }
 
@@ -388,6 +473,22 @@ public enum Ability {
 
     public float getFlightRange() {
         return flightRange;
+    }
+
+    public int getVolleyCount() {
+        return volleyCount;
+    }
+
+    public float getVolleySpread() {
+        return volleySpread;
+    }
+
+    public boolean isTargeted() {
+        return targeted;
+    }
+
+    public int getSummonCount() {
+        return summonCount;
     }
 
     public float getHitSize() {

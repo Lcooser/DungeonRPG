@@ -28,7 +28,6 @@ import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.effects.Effects;
 import com.dungeonrpg.game.entities.MonsterFactory;
-import com.dungeonrpg.game.entities.MonsterType;
 import com.dungeonrpg.game.item.ItemDrops;
 import com.dungeonrpg.game.item.ItemIcons;
 import com.dungeonrpg.game.rpg.CharacterClass;
@@ -143,7 +142,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         }
 
         engine.addSystem(new MonsterAiSystem());
-        engine.addSystem(new AttackSystem(effects, map));
+        engine.addSystem(new AttackSystem(effects, map, monsterFactory));
         engine.addSystem(new ProjectileSystem(map, effects));
         engine.addSystem(new ProgressionSystem(session.getDifficulty().getPlayerSpeedMultiplier()));
         engine.addSystem(new ExperienceSystem(effects));
@@ -178,11 +177,11 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         engine.addSystem(hudSystem);
 
         createPlayer();
-        new MonsterSpawner(monsterFactory).populate(map);
+        new MonsterSpawner(monsterFactory, session.getTheme()).populate(map);
     }
 
     private String bossName() {
-        return map.getBossRoom() == null ? null : MonsterType.SPIDER_QUEEN.getDisplayName();
+        return map.getBossRoom() == null ? null : session.getTheme().getBoss().getDisplayName();
     }
 
     private Texture loadSheet(String path) {

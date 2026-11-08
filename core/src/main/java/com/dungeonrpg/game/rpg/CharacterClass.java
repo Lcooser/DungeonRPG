@@ -44,13 +44,13 @@ public enum CharacterClass {
         return abilities;
     }
 
-    /** Each class has its sheets at sprites/<class>_sheet.png and sprites/<class>_tired.png. */
+    /** Each class has its sheets at sprites/characters/<class>_sheet.png and <class>_tired.png. */
     public String getSheetPath() {
-        return "sprites/" + name().toLowerCase() + "_sheet.png";
+        return "sprites/characters/" + name().toLowerCase() + "_sheet.png";
     }
 
     public String getTiredSheetPath() {
-        return "sprites/" + name().toLowerCase() + "_tired.png";
+        return "sprites/characters/" + name().toLowerCase() + "_tired.png";
     }
 
     public StatsComponent createStats() {

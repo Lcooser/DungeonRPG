@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.dungeonrpg.game.animation.Direction;
 import com.dungeonrpg.game.audio.AudioManager;
 import com.dungeonrpg.game.audio.SoundId;
 import com.dungeonrpg.game.components.AttachedEffectComponent;
@@ -25,6 +24,7 @@ import com.dungeonrpg.game.rpg.Combat;
 import com.dungeonrpg.game.tags.PlayerComponent;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /** Creates visual effects, projectiles and floating text from the effect sheets. */
@@ -55,7 +55,7 @@ public class Effects implements Disposable {
     private final Engine engine;
     private final BitmapFont font;
     private final AudioManager audio = new AudioManager();
-    private final Map<EffectType.Sheet, Texture> sheets = new EnumMap<>(EffectType.Sheet.class);
+    private final Map<String, Texture> sheets = new HashMap<>();
     private final Map<EffectType, Animation<TextureRegion>> animations = new EnumMap<>(EffectType.class);
     private final Map<EffectType, Array<TextureRegion>> frames = new EnumMap<>(EffectType.class);
 
@@ -65,22 +65,24 @@ public class Effects implements Disposable {
         font = new BitmapFont(Gdx.files.internal("ui/pixel-font.fnt"));
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        Map<EffectType.Sheet, TextureRegion[][]> cells = new EnumMap<>(EffectType.Sheet.class);
+        Map<String, TextureRegion[][]> cells = new HashMap<>();
 
-        for (EffectType.Sheet sheet : EffectType.Sheet.values()) {
+        for (EffectType type : EffectType.values()) {
+            if (sheets.containsKey(type.getPath())) continue;
+
             // Effects are shrunk on screen, so they use mipmaps to avoid shimmering.
-            Texture texture = new Texture(Gdx.files.internal(sheet.getPath()), true);
+            Texture texture = new Texture(Gdx.files.internal(type.getPath()), true);
             texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
 
-            sheets.put(sheet, texture);
-            cells.put(sheet, TextureRegion.split(texture, CELL_SIZE, CELL_SIZE));
+            sheets.put(type.getPath(), texture);
+            cells.put(type.getPath(), TextureRegion.split(texture, CELL_SIZE, CELL_SIZE));
         }
 
         for (EffectType type : EffectType.values()) {
             Array<TextureRegion> typeFrames = new Array<>(type.getFrames());
 
             for (int i = 0; i < type.getFrames(); i++) {
-                typeFrames.add(cells.get(type.getSheet())[type.getRow()][i]);
+                typeFrames.add(cells.get(type.getPath())[type.getRow()][i]);
             }
 
             frames.put(type, typeFrames);
@@ -171,15 +173,16 @@ public class Effects implements Disposable {
         return effect;
     }
 
-    public Entity spawnProjectile(Ability ability, boolean fromPlayer, float damage, float x, float y, Direction direction) {
-        Entity projectile = spawn(ability.getProjectileEffect(), x, y, direction.getAngle());
+    public Entity spawnProjectile(Ability ability, boolean fromPlayer, float damage, float x, float y, float directionX, float directionY) {
+        float angle = (float) Math.toDegrees(Math.atan2(directionY, directionX));
+        Entity projectile = spawn(ability.getProjectileEffect(), x, y, angle);
 
         ProjectileComponent data = new ProjectileComponent();
         data.ability = ability;
         data.fromPlayer = fromPlayer;
         data.damage = damage;
-        data.directionX = direction.getX();
-        data.directionY = direction.getY();
+        data.directionX = directionX;
+        data.directionY = directionY;
 
         projectile.add(data);
 

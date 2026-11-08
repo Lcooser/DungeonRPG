@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.dungeonrpg.game.animation.Direction;
 import com.dungeonrpg.game.components.AttackComponent;
@@ -23,6 +24,9 @@ import com.dungeonrpg.game.components.StunComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.audio.SoundId;
 import com.dungeonrpg.game.effects.Effects;
+import com.dungeonrpg.game.entities.MonsterFactory;
+import com.dungeonrpg.game.entities.MonsterType;
+import com.dungeonrpg.game.item.LootTier;
 import com.dungeonrpg.game.item.Equipment;
 import com.dungeonrpg.game.rpg.Ability;
 import com.dungeonrpg.game.rpg.Combat;
@@ -54,6 +58,8 @@ public class AttackSystem extends IteratingSystem {
     // Half of a typical hitbox, so a target counts when its body touches the blast, not only its center.
     private static final float TARGET_RADIUS = 10f;
     private static final float BLINK_STEP = 8f;
+    private static final int MAX_MINIONS = 6;
+    private static final float SUMMON_RADIUS = 64f;
 
     private final ComponentMapper<AttackComponent> attacks =
         ComponentMapper.getFor(AttackComponent.class);
@@ -91,12 +97,16 @@ public class AttackSystem extends IteratingSystem {
     private final ComponentMapper<BuffComponent> buffs =
         ComponentMapper.getFor(BuffComponent.class);
 
+    private final ComponentMapper<MonsterComponent> monsterTypes =
+        ComponentMapper.getFor(MonsterComponent.class);
+
     private final Effects effects;
     private final DungeonMap map;
+    private final MonsterFactory monsterFactory;
     private final Rectangle hitBox = new Rectangle();
     private final Rectangle targetBox = new Rectangle();
 
-    public AttackSystem(Effects effects, DungeonMap map) {
+    public AttackSystem(Effects effects, DungeonMap map, MonsterFactory monsterFactory) {
         super(Family.all(
             AttackComponent.class,
             FacingComponent.class,
@@ -106,6 +116,7 @@ public class AttackSystem extends IteratingSystem {
 
         this.effects = effects;
         this.map = map;
+        this.monsterFactory = monsterFactory;
     }
 
     @Override
@@ -178,6 +189,11 @@ public class AttackSystem extends IteratingSystem {
         if (ability.isEffectAttached() && ability.getEffect() != null) {
             effects.spawnAttached(ability.getEffect(), entity, EFFECT_HEIGHT);
         }
+
+        // Targeted blasts start their animation on the spot, so the player can see it coming and move away.
+        if (ability.isTargeted() && ability.getEffect() != null) {
+            effects.spawn(ability.getEffect(), attack.targetX, attack.targetY + EFFECT_HEIGHT, 0f);
+        }
     }
 
     private boolean pay(Entity entity, Ability ability) {
@@ -212,11 +228,15 @@ public class AttackSystem extends IteratingSystem {
                 break;
             case AREA:
                 effects.playSound(SoundId.SWING);
-                areaHit(entity, ability, damage);
+                areaHit(entity, attack, ability, damage);
+                break;
+            case SUMMON:
+                effects.playSound(SoundId.CAST);
+                summon(entity, ability);
                 break;
             default:
                 effects.playSound(SoundId.CAST);
-                launchProjectile(entity, ability, damage);
+                launchProjectile(entity, attack, ability, damage);
         }
     }
 
@@ -282,12 +302,12 @@ public class AttackSystem extends IteratingSystem {
     }
 
     // Circular blast around the caster, or around a point in front of it.
-    private void areaHit(Entity entity, Ability ability, float damage) {
+    private void areaHit(Entity entity, AttackComponent attack, Ability ability, float damage) {
         Direction direction = facings.get(entity).direction;
         float casterX = Combat.centerX(entity);
         float casterY = Combat.centerY(entity);
-        float blastX = casterX + direction.getX() * ability.getForward();
-        float blastY = casterY + direction.getY() * ability.getForward();
+        float blastX = ability.isTargeted() ? attack.targetX : casterX + direction.getX() * ability.getForward();
+        float blastY = ability.isTargeted() ? attack.targetY : casterY + direction.getY() * ability.getForward();
         float reach = ability.getRange() + TARGET_RADIUS;
 
         for (Entity target : targetsOf(entity)) {
@@ -312,22 +332,70 @@ public class AttackSystem extends IteratingSystem {
             }
         }
 
-        if (ability.getEffect() != null && !ability.isEffectAttached()) {
+        if (ability.getEffect() != null && !ability.isEffectAttached() && !ability.isTargeted()) {
             effects.spawn(ability.getEffect(), blastX, blastY + EFFECT_HEIGHT, 0f);
         }
     }
 
-    private void launchProjectile(Entity entity, Ability ability, float damage) {
+    private void launchProjectile(Entity entity, AttackComponent attack, Ability ability, float damage) {
         Direction direction = facings.get(entity).direction;
+        float aimX = direction.getX();
+        float aimY = direction.getY();
 
-        effects.spawnProjectile(
-            ability,
-            players.has(entity),
-            damage,
-            Combat.centerX(entity) + direction.getX() * PROJECTILE_SPAWN_DISTANCE,
-            Combat.centerY(entity) + direction.getY() * PROJECTILE_SPAWN_DISTANCE,
-            direction
-        );
+        // Monsters shoot straight at the player instead of along the four facing directions.
+        if (!players.has(entity) && (attack.aimX != 0f || attack.aimY != 0f)) {
+            aimX = attack.aimX;
+            aimY = attack.aimY;
+        }
+
+        int count = ability.getVolleyCount();
+        float step = count > 1 ? ability.getVolleySpread() / (count - 1) : 0f;
+
+        for (int i = 0; i < count; i++) {
+            float angle = (float) Math.toRadians((i - (count - 1) / 2f) * step);
+            float directionX = (float) (aimX * Math.cos(angle) - aimY * Math.sin(angle));
+            float directionY = (float) (aimX * Math.sin(angle) + aimY * Math.cos(angle));
+
+            effects.spawnProjectile(
+                ability,
+                players.has(entity),
+                damage,
+                Combat.centerX(entity) + directionX * PROJECTILE_SPAWN_DISTANCE,
+                Combat.centerY(entity) + directionY * PROJECTILE_SPAWN_DISTANCE,
+                directionX,
+                directionY
+            );
+        }
+    }
+
+    // Calls minions around the caster, capped so a long fight cannot flood the room.
+    private void summon(Entity entity, Ability ability) {
+        MonsterComponent caster = monsterTypes.get(entity);
+
+        if (caster == null || caster.type.getMinions().length == 0) return;
+
+        int alive = 0;
+
+        for (Entity monster : getEngine().getEntitiesFor(MONSTERS)) {
+            if (monsterTypes.get(monster).type.getLootTier() == LootTier.MINION) {
+                alive++;
+            }
+        }
+
+        MonsterType[] minions = caster.type.getMinions();
+
+        for (int i = 0; i < ability.getSummonCount() && alive < MAX_MINIONS; i++) {
+            float angle = MathUtils.random(MathUtils.PI2);
+            float x = Combat.centerX(entity) + MathUtils.cos(angle) * SUMMON_RADIUS;
+            float y = Combat.centerY(entity) + MathUtils.sin(angle) * SUMMON_RADIUS;
+
+            // Skip spots inside walls.
+            if (map.collides(x - 12f, y - 12f, 24f, 24f)) continue;
+
+            monsterFactory.spawn(minions[MathUtils.random(minions.length - 1)], x, y);
+            effects.spawn(ability.getEffect(), x, y + EFFECT_HEIGHT, 0f);
+            alive++;
+        }
     }
 
     private void applyBuff(Entity entity, Ability ability) {

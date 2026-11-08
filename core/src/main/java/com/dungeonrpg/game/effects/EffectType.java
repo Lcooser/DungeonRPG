@@ -1,46 +1,60 @@
 package com.dungeonrpg.game.effects;
 
-/** Effects drawn from the effect sheets: one row per effect, facing right (the game rotates them). */
+/**
+ * Effects drawn from sheets of 192px cells, facing right (the game rotates them). Each entry names the
+ * file, the row of the effect inside it and how many frames it has.
+ */
 public enum EffectType {
-    AXE_SLASH(Sheet.COMBAT, 0, 5, 0.05f, false, 0.4f),
-    SWORD_SLASH(Sheet.COMBAT, 1, 5, 0.05f, false, 0.4f),
-    HIT_SPARK(Sheet.COMBAT, 2, 4, 0.06f, false, 0.35f),
-    BLOOD(Sheet.COMBAT, 3, 4, 0.07f, false, 0.35f),
-    FIREBALL(Sheet.COMBAT, 4, 4, 0.06f, true, 0.4f),
-    FIREBALL_EXPLOSION(Sheet.COMBAT, 5, 6, 0.07f, false, 0.5f),
-    MAGIC_BOLT(Sheet.COMBAT, 6, 4, 0.06f, true, 0.35f),
-    MAGIC_IMPACT(Sheet.COMBAT, 7, 6, 0.06f, false, 0.4f),
-    WHIRLWIND(Sheet.SKILLS, 0, 8, 0.08f, false, 0.62f),
-    GROUND_SLAM(Sheet.SKILLS, 1, 8, 0.07f, false, 0.6f),
-    RAGE_AURA(Sheet.SKILLS, 2, 8, 0.09f, true, 0.5f),
-    FROST_NOVA(Sheet.SKILLS, 4, 8, 0.07f, false, 0.7f),
-    ARCANE_BLINK(Sheet.SKILLS, 5, 8, 0.07f, false, 0.45f);
+    AXE_SLASH(Files.COMBAT, 0, 5, 0.05f, false, 0.4f),
+    SWORD_SLASH(Files.COMBAT, 1, 5, 0.05f, false, 0.4f),
+    HIT_SPARK(Files.COMBAT, 2, 4, 0.06f, false, 0.35f),
+    BLOOD(Files.COMBAT, 3, 4, 0.07f, false, 0.35f),
+    FIREBALL(Files.COMBAT, 4, 4, 0.06f, true, 0.4f),
+    FIREBALL_EXPLOSION(Files.COMBAT, 5, 6, 0.07f, false, 0.5f),
+    MAGIC_BOLT(Files.COMBAT, 6, 4, 0.06f, true, 0.35f),
+    MAGIC_IMPACT(Files.COMBAT, 7, 6, 0.06f, false, 0.4f),
 
-    /** Sheets of 192px cells, see tools/normalize_effects.py. */
-    public enum Sheet {
-        COMBAT("sprites/effects_sheet.png"),
-        SKILLS("sprites/skill_effects_sheet.png");
+    WHIRLWIND(Files.SKILLS, 0, 8, 0.08f, false, 0.62f),
+    GROUND_SLAM(Files.SKILLS, 1, 8, 0.07f, false, 0.6f),
+    RAGE_AURA(Files.SKILLS, 2, 8, 0.09f, true, 0.5f),
+    FROST_NOVA(Files.SKILLS, 4, 8, 0.07f, false, 0.7f),
+    ARCANE_BLINK(Files.SKILLS, 5, 8, 0.07f, false, 0.45f),
 
-        private final String path;
+    // Monster projectiles, 4 looping frames each.
+    ARROW(Files.VFX + "arrow_projectile.png", 0, 4, 0.08f, true, 0.45f),
+    CROSSBOW_BOLT(Files.VFX + "crossbow_bolt_projectile.png", 0, 4, 0.08f, true, 0.45f),
+    NECROTIC_BOLT(Files.VFX + "necrotic_bolt_projectile.png", 0, 4, 0.08f, true, 0.5f),
+    VENOM_GLOB(Files.VFX + "venom_glob_projectile.png", 0, 4, 0.08f, true, 0.5f),
+    IMP_FIREBALL(Files.VFX + "imp_fireball_projectile.png", 0, 4, 0.08f, true, 0.5f),
+    MAGMA_BREATH(Files.VFX + "magma_breath_projectile.png", 0, 4, 0.08f, true, 0.6f),
 
-        Sheet(String path) {
-            this.path = path;
-        }
+    // Boss attacks, 6 frames each.
+    SOUL_BARRAGE(Files.VFX + "soul_barrage_vfx.png", 0, 6, 0.08f, false, 0.7f),
+    DEATH_NOVA(Files.VFX + "death_nova_vfx.png", 0, 6, 0.09f, false, 1.1f),
+    SUMMON_UNDEAD(Files.VFX + "summon_undead_vfx.png", 0, 6, 0.09f, false, 0.8f),
+    VENOM_SPIT(Files.VFX + "venom_spit_vfx.png", 0, 6, 0.08f, false, 0.6f),
+    WEB_TRAP(Files.VFX + "web_trap_vfx.png", 0, 6, 0.12f, false, 0.7f),
+    BROOD_SUMMONING(Files.VFX + "brood_summoning_vfx.png", 0, 6, 0.09f, false, 0.8f),
+    DRAGON_BREATH(Files.VFX + "dragon_breath_vfx.png", 0, 6, 0.08f, false, 0.8f),
+    METEOR_RAIN(Files.VFX + "meteor_rain_vfx.png", 0, 6, 0.12f, false, 0.9f),
+    LAVA_ERUPTION(Files.VFX + "lava_eruption_vfx.png", 0, 6, 0.09f, false, 1.2f);
 
-        public String getPath() {
-            return path;
-        }
+    /** Paths of the effect files, with the folder shared by the single-row strips. */
+    private static final class Files {
+        private static final String VFX = "sprites/vfx/";
+        private static final String COMBAT = VFX + "combat_effects_sheet.png";
+        private static final String SKILLS = VFX + "skill_effects_sheet.png";
     }
 
-    private final Sheet sheet;
+    private final String path;
     private final int row;
     private final int frames;
     private final float frameDuration;
     private final boolean looping;
     private final float scale;
 
-    EffectType(Sheet sheet, int row, int frames, float frameDuration, boolean looping, float scale) {
-        this.sheet = sheet;
+    EffectType(String path, int row, int frames, float frameDuration, boolean looping, float scale) {
+        this.path = path;
         this.row = row;
         this.frames = frames;
         this.frameDuration = frameDuration;
@@ -48,8 +62,8 @@ public enum EffectType {
         this.scale = scale;
     }
 
-    public Sheet getSheet() {
-        return sheet;
+    public String getPath() {
+        return path;
     }
 
     public int getRow() {

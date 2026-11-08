@@ -10,17 +10,17 @@ public class MonsterSpawner {
 
     private static final int ROOM_AREA_PER_MONSTER = 45;
     private static final int MAX_PER_ROOM = 4;
-    private static final float SKELETON_CHANCE = 0.5f;
-    private static final float SLIME_CHANCE = 0.3f;
     // Rooms farther from the spawn (0 near, 1 farthest) hold stronger tiers.
     private static final float EARLY_ROOMS = 0.3f;
     private static final float MIDDLE_ROOMS = 0.65f;
     private static final float BOSS_ESCORT_OFFSET = 64f;
 
     private final MonsterFactory factory;
+    private final Theme theme;
 
-    public MonsterSpawner(MonsterFactory factory) {
+    public MonsterSpawner(MonsterFactory factory, Theme theme) {
         this.factory = factory;
+        this.theme = theme;
     }
 
     public void populate(DungeonMap map) {
@@ -60,11 +60,14 @@ public class MonsterSpawner {
         float centerX = (room.centerX() + 0.5f) * DungeonMap.TILE_SIZE;
         float centerY = (room.centerY() + 0.5f) * DungeonMap.TILE_SIZE;
 
-        factory.spawn(MonsterType.SPIDER_QUEEN, centerX, centerY);
+        MonsterType boss = theme.getBoss();
+        MonsterType[] minions = boss.getMinions();
+
+        factory.spawn(boss, centerX, centerY);
 
         // Two escorts so the room is not just a duel from the start.
-        factory.spawn(MonsterType.BROOD_GUARD, centerX - BOSS_ESCORT_OFFSET, centerY + BOSS_ESCORT_OFFSET);
-        factory.spawn(MonsterType.BROOD_GUARD, centerX + BOSS_ESCORT_OFFSET, centerY - BOSS_ESCORT_OFFSET);
+        factory.spawn(minions[0], centerX - BOSS_ESCORT_OFFSET, centerY + BOSS_ESCORT_OFFSET);
+        factory.spawn(minions[minions.length - 1], centerX + BOSS_ESCORT_OFFSET, centerY - BOSS_ESCORT_OFFSET);
     }
 
     private float distance(Room from, Room to) {
@@ -84,16 +87,8 @@ public class MonsterSpawner {
     }
 
     private MonsterType randomType(int tier) {
-        float roll = MathUtils.random();
-        Family family;
-
-        if (roll < SKELETON_CHANCE) {
-            family = Family.SKELETON;
-        } else if (roll < SKELETON_CHANCE + SLIME_CHANCE) {
-            family = Family.SLIME;
-        } else {
-            family = Family.SPIDER;
-        }
+        Family[] families = theme.getFamilies();
+        Family family = families[MathUtils.random(families.length - 1)];
 
         for (MonsterType type : MonsterType.values()) {
             if (type.getFamily() == family && type.getTierLevel() == tier) return type;

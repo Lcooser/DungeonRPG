@@ -2,6 +2,7 @@ package com.dungeonrpg.game;
 
 import com.dungeonrpg.game.rpg.CharacterClass;
 import com.dungeonrpg.game.rpg.Difficulty;
+import com.dungeonrpg.game.world.Theme;
 
 /** Choices made on the title screen, kept across runs. */
 public class GameSession {
@@ -11,6 +12,7 @@ public class GameSession {
 
     private CharacterClass characterClass = CharacterClass.BARBARIAN;
     private Difficulty difficulty = Difficulty.MEDIUM;
+    private Theme theme = Theme.CRYPT;
     private String playerName = DEFAULT_NAME;
 
     public CharacterClass getCharacterClass() {
@@ -27,6 +29,14 @@ public class GameSession {
 
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public Theme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(Theme theme) {
+        this.theme = theme;
     }
 
     public String getPlayerName() {

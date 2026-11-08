@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Disposable;
 /** Weapon icons from weapon_icons.png (row = weapon family, column = tier) and a soft glow for drops. */
 public class ItemIcons implements Disposable {
 
-    private static final String SHEET_PATH = "sprites/weapon_icons.png";
+    private static final String SHEET_PATH = "sprites/items/weapon_icons.png";
     private static final int CELL_SIZE = 160;
     private static final int GLOW_SIZE = 64;
 

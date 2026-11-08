@@ -10,6 +10,7 @@ import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.AttackComponent;
 import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.HurtComponent;
+import com.dungeonrpg.game.components.MonsterComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
@@ -39,6 +40,9 @@ public class AnimationSystem extends IteratingSystem {
     private final ComponentMapper<HurtComponent> hurts =
         ComponentMapper.getFor(HurtComponent.class);
 
+    private final ComponentMapper<MonsterComponent> monsters =
+        ComponentMapper.getFor(MonsterComponent.class);
+
     private final ComponentMapper<DeadComponent> deads =
         ComponentMapper.getFor(DeadComponent.class);
 
@@ -60,7 +64,8 @@ public class AnimationSystem extends IteratingSystem {
 
         boolean moving = velocity.x != 0 || velocity.y != 0;
 
-        if (moving) {
+        // Monsters face the player (set by their AI) even while backing away, so only the player follows its movement.
+        if (moving && !monsters.has(entity)) {
             facing.direction = Direction.fromVector(velocity.x, velocity.y);
         }
 

@@ -12,6 +12,12 @@ public class AttackComponent implements Component {
     // Slot requested this frame by input or AI, -1 when none. AttackSystem decides if it can start.
     public int requestedSlot = -1;
 
+    // Set by the AI before attacking: unit vector and world point of the target, used by aimed attacks.
+    public float aimX;
+    public float aimY;
+    public float targetX;
+    public float targetY;
+
     public Ability current;
     public boolean attacking;
     public int hitsDone;
