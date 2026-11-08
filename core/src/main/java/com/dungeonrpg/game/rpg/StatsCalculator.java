@@ -34,6 +34,14 @@ public final class StatsCalculator {
         return 100f + stats.agility * 10f;
     }
 
+    public static float physicalDamage(StatsComponent stats, float baseDamage) {
+        return baseDamage + stats.strength * 2f;
+    }
+
+    public static float magicalDamage(StatsComponent stats, float baseDamage) {
+        return baseDamage + stats.intelligence * 3f;
+    }
+
     /** A defesa reduz o dano em porcentagem, e todo golpe causa pelo menos 1 de dano. */
     public static float reduceDamage(float damage, StatsComponent stats) {
         return Math.max(1f, damage * DEFENSE_SCALE / (DEFENSE_SCALE + stats.defense));

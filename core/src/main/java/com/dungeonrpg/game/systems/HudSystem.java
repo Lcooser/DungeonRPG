@@ -37,7 +37,7 @@ public class HudSystem extends IteratingSystem {
             HealthComponent.class,
             StaminaComponent.class,
             PositionComponent.class
-        ).get(), 5);
+        ).get(), 6);
 
         this.hud = hud;
     }

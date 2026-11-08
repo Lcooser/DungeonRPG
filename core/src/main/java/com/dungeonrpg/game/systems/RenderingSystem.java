@@ -1,19 +1,30 @@
 package com.dungeonrpg.game.systems;
 
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.systems.SortedIteratingSystem;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.dungeonrpg.game.components.HurtComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 
-public class RenderingSystem extends IteratingSystem {
+import java.util.Comparator;
 
-    private final ComponentMapper<PositionComponent> positions =
+public class RenderingSystem extends SortedIteratingSystem {
+
+    private static final Color HURT_TINT = new Color(1f, 0.45f, 0.45f, 1f);
+
+    private static final ComponentMapper<PositionComponent> POSITIONS =
         ComponentMapper.getFor(PositionComponent.class);
 
-    private final ComponentMapper<TextureComponent> textures =
+    private static final ComponentMapper<TextureComponent> TEXTURES =
         ComponentMapper.getFor(TextureComponent.class);
+
+    private final ComponentMapper<HurtComponent> hurts =
+        ComponentMapper.getFor(HurtComponent.class);
 
     private final OrthographicCamera camera;
     private final SpriteBatch batch;
@@ -22,7 +33,7 @@ public class RenderingSystem extends IteratingSystem {
         super(Family.all(
             PositionComponent.class,
             TextureComponent.class
-        ).get(), 4);
+        ).get(), new DepthComparator(), 4);
 
         this.camera = camera;
         this.batch = new SpriteBatch();
@@ -30,6 +41,9 @@ public class RenderingSystem extends IteratingSystem {
 
     @Override
     public void update(float deltaTime) {
+        // As entidades se movem, então a ordem de desenho é refeita a cada frame.
+        forceSort();
+
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
@@ -39,21 +53,44 @@ public class RenderingSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
-        PositionComponent position = positions.get(entity);
-        TextureComponent sprite = textures.get(entity);
+        PositionComponent position = POSITIONS.get(entity);
+        TextureComponent sprite = TEXTURES.get(entity);
 
         if (sprite.region == null) return;
 
-        batch.draw(
-            sprite.region,
-            position.x + sprite.offsetX,
-            position.y + sprite.offsetY,
-            sprite.width,
-            sprite.height
-        );
+        batch.setColor(hurts.has(entity) ? HURT_TINT : Color.WHITE);
+
+        float x = position.x + sprite.offsetX;
+        float y = position.y + sprite.offsetY;
+
+        if (sprite.rotation == 0f) {
+            batch.draw(sprite.region, x, y, sprite.width, sprite.height);
+        } else {
+            batch.draw(
+                sprite.region,
+                x, y,
+                sprite.width / 2f, sprite.height / 2f,
+                sprite.width, sprite.height,
+                1f, 1f,
+                sprite.rotation
+            );
+        }
     }
 
     public void dispose() {
         batch.dispose();
+    }
+
+    /** Camadas maiores por cima e, na mesma camada, quem está mais abaixo na tela é desenhado depois. */
+    private static class DepthComparator implements Comparator<Entity> {
+
+        @Override
+        public int compare(Entity first, Entity second) {
+            int layers = Integer.compare(TEXTURES.get(first).layer, TEXTURES.get(second).layer);
+
+            if (layers != 0) return layers;
+
+            return Float.compare(POSITIONS.get(second).y, POSITIONS.get(first).y);
+        }
     }
 }

@@ -7,7 +7,9 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.dungeonrpg.game.animation.AnimationType;
 import com.dungeonrpg.game.animation.Direction;
 import com.dungeonrpg.game.components.AnimationComponent;
+import com.dungeonrpg.game.components.AttackComponent;
 import com.dungeonrpg.game.components.FacingComponent;
+import com.dungeonrpg.game.components.HurtComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
@@ -29,6 +31,12 @@ public class AnimationSystem extends IteratingSystem {
 
     private final ComponentMapper<StaminaComponent> staminas =
         ComponentMapper.getFor(StaminaComponent.class);
+
+    private final ComponentMapper<AttackComponent> attacks =
+        ComponentMapper.getFor(AttackComponent.class);
+
+    private final ComponentMapper<HurtComponent> hurts =
+        ComponentMapper.getFor(HurtComponent.class);
 
     private final ComponentMapper<DeadComponent> deads =
         ComponentMapper.getFor(DeadComponent.class);
@@ -52,12 +60,19 @@ public class AnimationSystem extends IteratingSystem {
         boolean moving = velocity.x != 0 || velocity.y != 0;
 
         if (moving) {
-            facing.direction = directionOf(velocity);
+            facing.direction = Direction.fromVector(velocity.x, velocity.y);
         }
 
         changeType(animation, chooseType(entity, moving));
 
         animation.stateTime += deltaTime;
+
+        // O ataque segue o relógio do próprio golpe, para o frame de impacto cair no momento do dano.
+        AttackComponent attack = attacks.get(entity);
+
+        if (animation.type == AnimationType.ATTACK && attack != null) {
+            animation.stateTime = attack.time;
+        }
 
         sprite.region = animation.animations
             .get(animation.type, facing.direction)
@@ -68,20 +83,17 @@ public class AnimationSystem extends IteratingSystem {
         // Morto mantém o último frame, porque a animação de morte não repete.
         if (deads.has(entity)) return AnimationType.DEATH;
 
+        if (hurts.has(entity)) return AnimationType.HURT;
+
+        AttackComponent attack = attacks.get(entity);
+
+        if (attack != null && attack.attacking) return AnimationType.ATTACK;
+
         if (moving) return AnimationType.WALK;
 
         StaminaComponent stamina = staminas.get(entity);
 
         return stamina != null && stamina.exhausted ? AnimationType.TIRED : AnimationType.IDLE;
-    }
-
-    private Direction directionOf(VelocityComponent velocity) {
-        // Na diagonal o lado é preferido, porque o sprite de perfil lê melhor em movimento.
-        if (Math.abs(velocity.x) >= Math.abs(velocity.y)) {
-            return velocity.x > 0 ? Direction.RIGHT : Direction.LEFT;
-        }
-
-        return velocity.y > 0 ? Direction.UP : Direction.DOWN;
     }
 
     private void changeType(AnimationComponent animation, AnimationType type) {

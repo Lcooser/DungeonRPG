@@ -10,4 +10,8 @@ public class TextureComponent implements Component {
     // Deslocamento do desenho em relação à posição da entidade.
     public float offsetX;
     public float offsetY;
+    // Graus em torno do centro do desenho.
+    public float rotation;
+    // Camadas maiores são desenhadas por cima, e dentro de cada camada quem está mais abaixo na tela fica na frente.
+    public int layer;
 }

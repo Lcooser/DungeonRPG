@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.dungeonrpg.game.components.ColliderComponent;
+import com.dungeonrpg.game.components.KnockbackComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.world.DungeonMap;
@@ -19,6 +20,9 @@ public class MovementSystem  extends IteratingSystem {
 
     private final ComponentMapper<ColliderComponent> colliders =
         ComponentMapper.getFor(ColliderComponent.class);
+
+    private final ComponentMapper<KnockbackComponent> knockbacks =
+        ComponentMapper.getFor(KnockbackComponent.class);
 
     private final DungeonMap map;
 
@@ -37,14 +41,32 @@ public class MovementSystem  extends IteratingSystem {
         VelocityComponent velocity = velocities.get(entity);
         ColliderComponent collider = colliders.get(entity);
 
+        float velocityX = velocity.x;
+        float velocityY = velocity.y;
+
+        // O empurrão de um golpe substitui o movimento normal e perde força até acabar.
+        KnockbackComponent knockback = knockbacks.get(entity);
+
+        if (knockback != null) {
+            float strength = knockback.timeLeft / KnockbackComponent.DURATION;
+
+            velocityX = knockback.x * strength;
+            velocityY = knockback.y * strength;
+            knockback.timeLeft -= deltaTime;
+
+            if (knockback.timeLeft <= 0f) {
+                entity.remove(KnockbackComponent.class);
+            }
+        }
+
         // Cada eixo é resolvido separadamente para o personagem deslizar nas paredes.
-        float nextX = position.x + velocity.x * deltaTime;
+        float nextX = position.x + velocityX * deltaTime;
 
         if (!collidesAt(collider, nextX, position.y)) {
             position.x = nextX;
         }
 
-        float nextY = position.y + velocity.y * deltaTime;
+        float nextY = position.y + velocityY * deltaTime;
 
         if (!collidesAt(collider, position.x, nextY)) {
             position.y = nextY;

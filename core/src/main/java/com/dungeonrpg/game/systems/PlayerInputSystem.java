@@ -7,6 +7,9 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
+import com.dungeonrpg.game.animation.Direction;
+import com.dungeonrpg.game.components.AttackComponent;
+import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.tags.DeadComponent;
@@ -22,6 +25,12 @@ public class PlayerInputSystem extends IteratingSystem {
 
     private final ComponentMapper<StaminaComponent> staminas =
         ComponentMapper.getFor(StaminaComponent.class);
+
+    private final ComponentMapper<FacingComponent> facings =
+        ComponentMapper.getFor(FacingComponent.class);
+
+    private final ComponentMapper<AttackComponent> attacks =
+        ComponentMapper.getFor(AttackComponent.class);
 
     private final Vector2 direction = new Vector2();
 
@@ -53,6 +62,27 @@ public class PlayerInputSystem extends IteratingSystem {
 
         velocity.x = direction.x * speed;
         velocity.y = direction.y * speed;
+
+        // O personagem já olha para onde o jogador aponta, mesmo se atacar no mesmo frame.
+        FacingComponent facing = facings.get(entity);
+
+        if (facing != null && !direction.isZero()) {
+            facing.direction = Direction.fromVector(direction.x, direction.y);
+        }
+
+        requestAttack(entity);
+    }
+
+    private void requestAttack(Entity entity) {
+        AttackComponent attack = attacks.get(entity);
+
+        if (attack == null) return;
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.J) || Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            attack.requested = attack.primary;
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.K) || Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+            attack.requested = attack.secondary;
+        }
     }
 
     private boolean isSprinting(Entity entity, float deltaTime) {

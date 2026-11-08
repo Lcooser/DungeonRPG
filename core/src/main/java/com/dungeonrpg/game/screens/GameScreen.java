@@ -4,6 +4,7 @@ package com.dungeonrpg.game.screens;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.dungeonrpg.game.DungeonGame;
 import com.dungeonrpg.game.animation.CharacterAnimations;
 import com.dungeonrpg.game.components.AnimationComponent;
+import com.dungeonrpg.game.components.AttackComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
 import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.HealthComponent;
@@ -21,21 +23,32 @@ import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.StatsComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
-import com.dungeonrpg.game.systems.AnimationSystem;
+import com.dungeonrpg.game.effects.Effects;
+import com.dungeonrpg.game.entities.MonsterFactory;
 import com.dungeonrpg.game.rpg.CharacterClass;
 import com.dungeonrpg.game.rpg.StatsCalculator;
+import com.dungeonrpg.game.systems.AnimationSystem;
+import com.dungeonrpg.game.systems.AttackSystem;
 import com.dungeonrpg.game.systems.CameraSystem;
+import com.dungeonrpg.game.systems.CorpseSystem;
 import com.dungeonrpg.game.systems.DebugInputSystem;
+import com.dungeonrpg.game.systems.EffectSystem;
+import com.dungeonrpg.game.systems.FloatingTextSystem;
 import com.dungeonrpg.game.systems.HealthSystem;
 import com.dungeonrpg.game.systems.HudSystem;
+import com.dungeonrpg.game.systems.HurtSystem;
 import com.dungeonrpg.game.systems.MapRenderingSystem;
+import com.dungeonrpg.game.systems.MonsterAiSystem;
+import com.dungeonrpg.game.systems.MonsterHealthBarSystem;
 import com.dungeonrpg.game.systems.MovementSystem;
 import com.dungeonrpg.game.systems.PlayerInputSystem;
+import com.dungeonrpg.game.systems.ProjectileSystem;
 import com.dungeonrpg.game.systems.RenderingSystem;
 import com.dungeonrpg.game.systems.ResourceSystem;
 import com.dungeonrpg.game.tags.PlayerComponent;
 import com.dungeonrpg.game.ui.Hud;
 import com.dungeonrpg.game.world.DungeonMap;
+import com.dungeonrpg.game.world.MonsterSpawner;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -45,27 +58,27 @@ public class GameScreen extends ScreenAdapter {
     private static final int MAX_VIEWPORT_WIDTH = 960;
     private static final int MAX_VIEWPORT_HEIGHT = 540;
 
-    // Teclas de teste de vida e mana, devem sair quando o combate existir.
+    // Teclas de teste (1 dano, 2 gasta recurso, 3 restaura, F1 troca de classe), a remover antes do jogo final.
     private static final boolean DEBUG_CONTROLS = true;
-
-    private static final CharacterClass PLAYER_CLASS = CharacterClass.BARBARIAN;
 
     private static final int MAP_WIDTH = 80;
     private static final int MAP_HEIGHT = 60;
 
-    private static final String PLAYER_SHEET_PATH = "sprites/barbarian_sheet.png";
-    // Folha opcional com a animação de cansaço, sem ela o personagem usa o idle.
-    private static final String PLAYER_TIRED_SHEET_PATH = "sprites/barbarian_tired.png";
     private static final int PLAYER_SHEET_CELL_SIZE = 160;
     private static final float PLAYER_BODY_SIZE = 32f;
     private static final float PLAYER_SPRITE_SIZE = 72f;
 
     private final DungeonGame game;
+    private final CharacterClass characterClass;
     private final Engine engine;
     private final ExtendViewport viewport;
     private final DungeonMap map;
+    private final Effects effects;
+    private final MonsterFactory monsterFactory;
     private final MapRenderingSystem mapRenderingSystem;
     private final RenderingSystem renderingSystem;
+    private final FloatingTextSystem floatingTextSystem;
+    private final MonsterHealthBarSystem healthBarSystem;
     private final HudSystem hudSystem;
     private final Texture playerTexture;
     private final Texture playerTiredTexture;
@@ -74,6 +87,7 @@ public class GameScreen extends ScreenAdapter {
 
     public GameScreen(DungeonGame game) {
         this.game = game;
+        this.characterClass = game.getPlayerClass();
 
         OrthographicCamera camera = new OrthographicCamera();
 
@@ -89,12 +103,15 @@ public class GameScreen extends ScreenAdapter {
         map = new DungeonMap(MAP_WIDTH, MAP_HEIGHT, System.currentTimeMillis());
 
         // O sprite é reduzido em tela, então usa mipmaps para não serrilhar.
-        playerTexture = loadSheet(PLAYER_SHEET_PATH);
-        playerTiredTexture = Gdx.files.internal(PLAYER_TIRED_SHEET_PATH).exists()
-            ? loadSheet(PLAYER_TIRED_SHEET_PATH)
+        playerTexture = loadSheet(characterClass.getSheetPath());
+        // A folha de cansaço é opcional, sem ela o personagem usa o idle.
+        playerTiredTexture = Gdx.files.internal(characterClass.getTiredSheetPath()).exists()
+            ? loadSheet(characterClass.getTiredSheetPath())
             : null;
 
         engine = new Engine();
+        effects = new Effects(engine);
+        monsterFactory = new MonsterFactory(engine);
 
         engine.addSystem(new PlayerInputSystem());
 
@@ -102,9 +119,15 @@ public class GameScreen extends ScreenAdapter {
             engine.addSystem(new DebugInputSystem());
         }
 
+        engine.addSystem(new MonsterAiSystem());
+        engine.addSystem(new AttackSystem(effects));
+        engine.addSystem(new ProjectileSystem(map, effects));
         engine.addSystem(new ResourceSystem());
-        engine.addSystem(new HealthSystem());
+        engine.addSystem(new HealthSystem(effects));
+        engine.addSystem(new CorpseSystem());
         engine.addSystem(new MovementSystem(map));
+        engine.addSystem(new HurtSystem());
+        engine.addSystem(new EffectSystem());
         engine.addSystem(new AnimationSystem());
         engine.addSystem(new CameraSystem(camera, map));
 
@@ -114,10 +137,17 @@ public class GameScreen extends ScreenAdapter {
         renderingSystem = new RenderingSystem(camera);
         engine.addSystem(renderingSystem);
 
-        hudSystem = new HudSystem(new Hud(PLAYER_CLASS, map, this::restart));
+        floatingTextSystem = new FloatingTextSystem(camera, effects.getFont());
+        engine.addSystem(floatingTextSystem);
+
+        healthBarSystem = new MonsterHealthBarSystem(camera);
+        engine.addSystem(healthBarSystem);
+
+        hudSystem = new HudSystem(new Hud(characterClass, map, this::restart));
         engine.addSystem(hudSystem);
 
         createPlayer();
+        new MonsterSpawner(monsterFactory).populate(map);
     }
 
     private Texture loadSheet(String path) {
@@ -145,7 +175,7 @@ public class GameScreen extends ScreenAdapter {
         position.x = map.getSpawnX() - PLAYER_BODY_SIZE / 2f;
         position.y = map.getSpawnY() - PLAYER_BODY_SIZE / 2f;
 
-        StatsComponent stats = PLAYER_CLASS.createStats();
+        StatsComponent stats = characterClass.createStats();
 
         VelocityComponent velocity = new VelocityComponent();
         velocity.speed = StatsCalculator.moveSpeed(stats);
@@ -168,8 +198,12 @@ public class GameScreen extends ScreenAdapter {
         player.add(collider);
         player.add(stats);
         player.add(new HealthComponent(StatsCalculator.maxHealth(stats)));
+        player.add(new AttackComponent(
+            characterClass.getPrimaryAbility(),
+            characterClass.getSecondaryAbility()
+        ));
 
-        if (PLAYER_CLASS.usesMana()) {
+        if (characterClass.usesMana()) {
             player.add(new ManaComponent(StatsCalculator.maxMana(stats)));
         }
 
@@ -191,8 +225,19 @@ public class GameScreen extends ScreenAdapter {
         });
     }
 
+    private void switchClass() {
+        CharacterClass[] classes = CharacterClass.values();
+
+        game.setPlayerClass(classes[(characterClass.ordinal() + 1) % classes.length]);
+        restart();
+    }
+
     @Override
     public void render(float delta) {
+        if (DEBUG_CONTROLS && Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+            switchClass();
+        }
+
         ScreenUtils.clear(0.08f, 0.08f, 0.12f, 1f);
 
         viewport.apply();
@@ -210,7 +255,11 @@ public class GameScreen extends ScreenAdapter {
     public void dispose() {
         mapRenderingSystem.dispose();
         renderingSystem.dispose();
+        floatingTextSystem.dispose();
+        healthBarSystem.dispose();
         hudSystem.dispose();
+        effects.dispose();
+        monsterFactory.dispose();
         playerTexture.dispose();
 
         if (playerTiredTexture != null) {

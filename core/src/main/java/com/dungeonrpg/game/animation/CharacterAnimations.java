@@ -11,8 +11,10 @@ import java.util.Map;
 /**
  * Monta as animações de uma spritesheet em grade (gerada por tools/normalize_spritesheet.py).
  *
- * Linhas: 0-2 de frente (idle, walk, attack), 3-5 de costas, 6-8 de lado (direita) e
+ * Folha com direções: linhas 0-2 de frente (idle, walk, attack), 3-5 de costas, 6-8 de lado (direita) e
  * 9 com hurt (2 frames) seguido de death (6 frames). A esquerda é a direita espelhada.
+ *
+ * Folha sem direções (slime): linha 0 idle, 1 walk, 2 attack e 3 com hurt (2 frames) e death (6 frames).
  *
  * A folha de cansaço é opcional: 3 linhas (frente, costas, lado) de 4 frames. Sem ela, o
  * personagem usa a animação de idle quando está cansado.
@@ -23,6 +25,7 @@ public class CharacterAnimations {
     private static final int UP_ROW = 3;
     private static final int RIGHT_ROW = 6;
     private static final int EFFECTS_ROW = 9;
+    private static final int SINGLE_EFFECTS_ROW = 3;
 
     private static final int IDLE_FRAMES = 4;
     private static final int WALK_FRAMES = 6;
@@ -53,6 +56,21 @@ public class CharacterAnimations {
 
         addUniform(AnimationType.HURT, cells[EFFECTS_ROW], 0, HURT_FRAMES);
         addUniform(AnimationType.DEATH, cells[EFFECTS_ROW], HURT_FRAMES, DEATH_FRAMES);
+    }
+
+    private CharacterAnimations(TextureRegion[][] cells) {
+        addUniform(AnimationType.IDLE, cells[0], 0, IDLE_FRAMES);
+        addUniform(AnimationType.WALK, cells[1], 0, WALK_FRAMES);
+        addUniform(AnimationType.ATTACK, cells[2], 0, ATTACK_FRAMES);
+        animations.put(AnimationType.TIRED, animations.get(AnimationType.IDLE));
+
+        addUniform(AnimationType.HURT, cells[SINGLE_EFFECTS_ROW], 0, HURT_FRAMES);
+        addUniform(AnimationType.DEATH, cells[SINGLE_EFFECTS_ROW], HURT_FRAMES, DEATH_FRAMES);
+    }
+
+    /** Para criaturas que não têm lado, como o slime: o mesmo desenho vale para qualquer direção. */
+    public static CharacterAnimations withoutDirections(Texture texture, int cellSize) {
+        return new CharacterAnimations(TextureRegion.split(texture, cellSize, cellSize));
     }
 
     private void addDirectional(AnimationType type, TextureRegion[][] cells, int rowOffset, int frameCount) {
