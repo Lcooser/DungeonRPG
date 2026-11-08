@@ -13,4 +13,5 @@ public class ProjectileComponent implements Component {
     public float directionX;
     public float directionY;
     public float timeLeft = LIFETIME;
+    public float distanceTravelled;
 }

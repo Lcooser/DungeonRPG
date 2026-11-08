@@ -4,31 +4,33 @@ import com.dungeonrpg.game.effects.EffectType;
 
 /** Attacks and skills of players and monsters. */
 public enum Ability {
-    AXE_SWING(melee(DamageType.PHYSICAL, 18f).range(40f).cooldown(0.5f).knockback(110f)
+    AXE_SWING(melee(DamageType.PHYSICAL, 18f).range(40f).cooldown(0.5f).knockback(200f)
         .effect(EffectType.AXE_SLASH).icon(EffectType.AXE_SLASH, 2)),
     WHIRLWIND(area(DamageType.PHYSICAL).multiplier(0.7f).range(56f).cooldown(6f).cost(CostType.STAMINA, 40f)
-        .hits(3, 0.12f, 0.22f).duration(0.66f).knockback(80f)
+        .hits(3, 0.12f, 0.22f).duration(0.66f).knockback(170f)
         .effect(EffectType.WHIRLWIND).attachedEffect().icon(EffectType.WHIRLWIND, 3)),
     GROUND_SLAM(area(DamageType.PHYSICAL).multiplier(1.5f).range(64f).forward(28f).cooldown(8f)
-        .cost(CostType.STAMINA, 30f).knockback(40f).stun(1f)
+        .cost(CostType.STAMINA, 30f).knockback(150f).stun(1f)
         .effect(EffectType.GROUND_SLAM).icon(EffectType.GROUND_SLAM, 4)),
     BERSERKER_RAGE(buff().cooldown(20f).cost(CostType.STAMINA, 35f).buff(6f, 1.3f, 1.15f)
         .effect(EffectType.RAGE_AURA).icon(EffectType.RAGE_AURA, 4)),
-    MAGIC_BOLT(projectile(DamageType.MAGICAL, 14f).cooldown(0.55f).knockback(90f).speed(260f)
+    MAGIC_BOLT(projectile(DamageType.MAGICAL, 14f).cooldown(0.55f).knockback(170f).speed(260f)
+        .flightRange(300f).hitSize(18f).fizzle(EffectType.MAGIC_IMPACT)
         .projectileEffect(EffectType.MAGIC_BOLT, EffectType.MAGIC_IMPACT).icon(EffectType.MAGIC_BOLT, 1)),
     FIREBALL(projectile(DamageType.MAGICAL, 0f).multiplier(1.2f).range(44f).cooldown(2f)
-        .cost(CostType.MANA, 20f).knockback(160f).speed(200f)
+        .cost(CostType.MANA, 20f).knockback(230f).speed(200f)
+        .flightRange(360f).hitSize(22f).fizzle(EffectType.HIT_SPARK)
         .projectileEffect(EffectType.FIREBALL, EffectType.FIREBALL_EXPLOSION).icon(EffectType.FIREBALL, 1)),
     FROST_NOVA(area(DamageType.MAGICAL).multiplier(0.8f).range(72f).cooldown(8f).cost(CostType.MANA, 35f)
-        .knockback(40f).slow(0.5f, 3f).effect(EffectType.FROST_NOVA).icon(EffectType.FROST_NOVA, 4)),
+        .knockback(140f).slow(0.5f, 3f).effect(EffectType.FROST_NOVA).icon(EffectType.FROST_NOVA, 4)),
     ARCANE_BLINK(blink(150f).cooldown(7f).cost(CostType.MANA, 25f)
         .effect(EffectType.ARCANE_BLINK).icon(EffectType.ARCANE_BLINK, 3)),
-    SKELETON_SLASH(melee(DamageType.PHYSICAL, 14f).range(34f).cooldown(1.3f).knockback(120f)
+    SKELETON_SLASH(melee(DamageType.PHYSICAL, 14f).range(34f).cooldown(1.3f).knockback(150f)
         .effect(EffectType.SWORD_SLASH)),
-    SPIDER_BITE(melee(DamageType.PHYSICAL, 10f).range(30f).cooldown(0.9f).knockback(80f)
+    SPIDER_BITE(melee(DamageType.PHYSICAL, 10f).range(30f).cooldown(0.9f).knockback(120f)
         .effect(EffectType.HIT_SPARK)),
-    SLIME_LUNGE(melee(DamageType.PHYSICAL, 8f).range(28f).cooldown(1.2f).knockback(60f)),
-    BOSS_BITE(melee(DamageType.PHYSICAL, 24f).range(56f).cooldown(1.1f).knockback(220f)
+    SLIME_LUNGE(melee(DamageType.PHYSICAL, 8f).range(28f).cooldown(1.2f).knockback(100f)),
+    BOSS_BITE(melee(DamageType.PHYSICAL, 24f).range(56f).cooldown(1.1f).knockback(260f)
         .effect(EffectType.HIT_SPARK));
 
     /** How the ability is carried out. */
@@ -80,6 +82,10 @@ public enum Ability {
     private final float buffSpeed;
     private final float blinkDistance;
     private final float projectileSpeed;
+    // Distance a projectile flies before fizzling out, and the size of its hit area.
+    private final float flightRange;
+    private final float hitSize;
+    private final EffectType fizzleEffect;
     private final EffectType effect;
     private final boolean effectAttached;
     private final EffectType projectileEffect;
@@ -110,6 +116,9 @@ public enum Ability {
         buffSpeed = builder.buffSpeed;
         blinkDistance = builder.blinkDistance;
         projectileSpeed = builder.projectileSpeed;
+        flightRange = builder.flightRange;
+        hitSize = builder.hitSize;
+        fizzleEffect = builder.fizzleEffect;
         effect = builder.effect;
         effectAttached = builder.effectAttached;
         projectileEffect = builder.projectileEffect;
@@ -165,6 +174,9 @@ public enum Ability {
         private float buffSpeed = 1f;
         private float blinkDistance;
         private float projectileSpeed;
+        private float flightRange;
+        private float hitSize = 8f;
+        private EffectType fizzleEffect;
         private EffectType effect;
         private boolean effectAttached;
         private EffectType projectileEffect;
@@ -245,6 +257,21 @@ public enum Ability {
 
         private Builder speed(float value) {
             projectileSpeed = value;
+            return this;
+        }
+
+        private Builder flightRange(float value) {
+            flightRange = value;
+            return this;
+        }
+
+        private Builder hitSize(float value) {
+            hitSize = value;
+            return this;
+        }
+
+        private Builder fizzle(EffectType value) {
+            fizzleEffect = value;
             return this;
         }
 
@@ -357,6 +384,18 @@ public enum Ability {
 
     public float getProjectileSpeed() {
         return projectileSpeed;
+    }
+
+    public float getFlightRange() {
+        return flightRange;
+    }
+
+    public float getHitSize() {
+        return hitSize;
+    }
+
+    public EffectType getFizzleEffect() {
+        return fizzleEffect;
     }
 
     public EffectType getEffect() {

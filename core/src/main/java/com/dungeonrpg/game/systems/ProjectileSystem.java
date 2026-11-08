@@ -31,8 +31,6 @@ public class ProjectileSystem extends IteratingSystem {
         ColliderComponent.class
     ).exclude(DeadComponent.class).get();
 
-    private static final float PROJECTILE_SIZE = 8f;
-
     private final ComponentMapper<ProjectileComponent> projectiles =
         ComponentMapper.getFor(ProjectileComponent.class);
 
@@ -56,17 +54,15 @@ public class ProjectileSystem extends IteratingSystem {
         ProjectileComponent projectile = projectiles.get(entity);
         PositionComponent position = positions.get(entity);
 
-        float step = projectile.ability.getProjectileSpeed() * deltaTime;
+        Ability ability = projectile.ability;
+        float step = ability.getProjectileSpeed() * deltaTime;
         position.x += projectile.directionX * step;
         position.y += projectile.directionY * step;
         projectile.timeLeft -= deltaTime;
+        projectile.distanceTravelled += step;
 
-        projectileBox.set(
-            position.x - PROJECTILE_SIZE / 2f,
-            position.y - PROJECTILE_SIZE / 2f,
-            PROJECTILE_SIZE,
-            PROJECTILE_SIZE
-        );
+        float size = ability.getHitSize();
+        projectileBox.set(position.x - size / 2f, position.y - size / 2f, size, size);
 
         if (map.collides(projectileBox.x, projectileBox.y, projectileBox.width, projectileBox.height)) {
             impact(entity, projectile, position, null);
@@ -82,7 +78,12 @@ public class ProjectileSystem extends IteratingSystem {
             }
         }
 
-        if (projectile.timeLeft <= 0f) {
+        // Out of reach without hitting anything: the spell burns out instead of flying forever.
+        if (projectile.distanceTravelled >= ability.getFlightRange() || projectile.timeLeft <= 0f) {
+            if (ability.getFizzleEffect() != null) {
+                effects.spawn(ability.getFizzleEffect(), position.x, position.y, 0f);
+            }
+
             getEngine().removeEntity(entity);
         }
     }

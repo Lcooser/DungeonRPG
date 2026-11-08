@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Component;
 
 public class KnockbackComponent implements Component {
 
-    public static final float DURATION = 0.15f;
+    public static final float DURATION = 0.18f;
 
     public float x;
     public float y;
