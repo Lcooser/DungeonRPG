@@ -3,8 +3,8 @@
 Uso:
     python tools/generate_hud_art.py
 
-Saidas (assets/ui): pixel-font.fnt/.png, hud.atlas/.png, portrait_barbarian.png e
-portrait_barbarian_icon.png (versao pequena para o minimapa).
+Saidas (assets/ui): pixel-font.fnt/.png, hud.atlas/.png e, para cada classe,
+portrait_<classe>.png e portrait_<classe>_icon.png (versao pequena para o minimapa).
 Dependencia: pillow.
 """
 from pathlib import Path
@@ -240,16 +240,23 @@ def generate_atlas():
     (UI_DIR / "hud.atlas").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
-def generate_portrait():
-    source = Image.open(ROOT / "assets" / "sprites" / "barbarian.png").convert("RGBA")
-    # Recorte quadrado do rosto na arte original de 1254x1254.
-    face = source.crop((415, 75, 835, 495))
-    face.resize((32, 32), Image.LANCZOS).save(UI_DIR / "portrait_barbarian.png")
-    face.resize((10, 10), Image.LANCZOS).save(UI_DIR / "portrait_barbarian_icon.png")
+# Recorte quadrado do rosto na arte de referencia de 1254x1254 de cada classe.
+PORTRAIT_CROPS = {
+    "barbarian": (415, 75, 835, 495),
+    "mage": (430, 80, 850, 500),
+}
+
+
+def generate_portraits():
+    for name, crop in PORTRAIT_CROPS.items():
+        source = Image.open(ROOT / "art" / f"{name}.png").convert("RGBA")
+        face = source.crop(crop)
+        face.resize((32, 32), Image.LANCZOS).save(UI_DIR / f"portrait_{name}.png")
+        face.resize((10, 10), Image.LANCZOS).save(UI_DIR / f"portrait_{name}_icon.png")
 
 
 if __name__ == "__main__":
     generate_font()
     generate_atlas()
-    generate_portrait()
+    generate_portraits()
     print("HUD art gerada em", UI_DIR)

@@ -5,7 +5,16 @@ deslocado de frame para frame). Este script detecta cada frame, centraliza no ei
 do chao fixa por animacao, devolvendo uma grade de celulas CELL x CELL.
 
 Uso:
-    python tools/normalize_spritesheet.py art/entrada.png assets/sprites/saida.png [--cell 160] [--counts 4,6,5,...]
+    python tools/normalize_spritesheet.py art/entrada.png assets/sprites/saida.png \\
+        [--cell 160] [--counts 4,6,5,...] [--pad-to 4,6,5,...] [--scale 0.5] [--remove-background]
+
+--counts      quantidade de frames de cada linha da imagem, de cima para baixo.
+--pad-to      completa linhas curtas repetindo o frame do meio, para chegar a esse numero.
+--scale        reduz (ou amplia) a imagem antes de processar, para casar o tamanho com as outras folhas.
+--remove-background  torna transparente o fundo claro ligado as bordas, para folhas sem transparencia.
+
+Os limites de area sao relativos ao tamanho tipico dos frames, entao funciona em folhas de qualquer
+resolucao.
 
 Dependencias: pillow, numpy, scipy.
 """
@@ -17,11 +26,60 @@ from scipy import ndimage
 
 ALPHA_THRESHOLD = 40
 DILATION = 2
-MIN_FRAME_AREA = 3000
+# Fragmentos pequenos (bolhas, respingos) sao encaixados no frame mais proximo.
+SMALL_BLOB_RATIO = 0.2
+ATTACH_DISTANCE = 60
 # Dois frames colados (ex.: andar em cima de atacar) formam um blob com o dobro da area.
-MERGED_FRAME_AREA = 14000
-ROW_GAP = 40
+MERGED_BLOB_RATIO = 1.65
+ROW_GAP_RATIO = 0.3
+BACKGROUND_MIN_CHANNEL = 215
+HOLE_AREA_RATIO = 0.0002
+FRINGE_PASSES = 2
+FRINGE_MIN_CHANNEL = 190
 BOTTOM_PADDING = 4
+
+
+def remove_light_background(pixels):
+    """Apaga o fundo claro: o que toca a borda e tambem os vaos grandes dentro da silhueta.
+
+    Brilhos pequenos do personagem (olhos, metal) ficam, porque so regioes claras grandes saem.
+    """
+    rgb = pixels[:, :, :3].astype(int)
+    light = (rgb.min(axis=2) >= BACKGROUND_MIN_CHANNEL) | (pixels[:, :, 3] == 0)
+
+    labels, count = ndimage.label(light)
+    border = set(np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]])))
+    sizes = ndimage.sum(light, labels, index=range(1, count + 1))
+    min_hole = pixels.shape[0] * pixels.shape[1] * HOLE_AREA_RATIO
+
+    remove = [index for index, size in enumerate(sizes, start=1) if index in border or size >= min_hole]
+
+    pixels = pixels.copy()
+    background = np.isin(labels, remove)
+    pixels[background] = 0
+
+    # Tira o halo claro que sobra na beirada da silhueta.
+    for _ in range(FRINGE_PASSES):
+        transparent = pixels[:, :, 3] == 0
+        touching = ndimage.binary_dilation(transparent) & ~transparent
+        fringe = touching & (pixels[:, :, :3].astype(int).min(axis=2) >= FRINGE_MIN_CHANNEL)
+        pixels[fringe] = 0
+
+    return pixels
+
+
+def bounds_of(mask):
+    ys = np.where(mask.any(axis=1))[0]
+    xs = np.where(mask.any(axis=0))[0]
+
+    return xs[0], xs[-1] + 1, ys[0], ys[-1] + 1
+
+
+def box_distance(a, b):
+    dx = max(a[0] - b[1], b[0] - a[1], 0)
+    dy = max(a[2] - b[3], b[2] - a[3], 0)
+
+    return max(dx, dy)
 
 
 def detect_blobs(alpha):
@@ -30,22 +88,33 @@ def detect_blobs(alpha):
 
     for index in range(1, count + 1):
         mask = labels == index
-        area = int((mask & alpha).sum())
+        blobs.append({"mask": mask, "area": int((mask & alpha).sum())})
 
-        if area >= MIN_FRAME_AREA:
-            blobs.append({"mask": mask, "area": area})
+    largest = max(blob["area"] for blob in blobs)
+    typical = float(np.median([blob["area"] for blob in blobs if blob["area"] >= largest * 0.25]))
 
-    return blobs
+    main = [blob for blob in blobs if blob["area"] >= typical * SMALL_BLOB_RATIO]
+    small = [blob for blob in blobs if blob["area"] < typical * SMALL_BLOB_RATIO]
+
+    for fragment in small:
+        box = bounds_of(fragment["mask"])
+        nearest = min(main, key=lambda blob: box_distance(box, bounds_of(blob["mask"])))
+
+        if box_distance(box, bounds_of(nearest["mask"])) <= ATTACH_DISTANCE:
+            nearest["mask"] = nearest["mask"] | fragment["mask"]
+            nearest["area"] += fragment["area"]
+
+    return main, typical
 
 
 def split_merged(blob, alpha):
     """Separa um blob com dois frames na linha horizontal com menos pixels perto do meio."""
-    ys = np.where(blob["mask"].any(axis=1))[0]
-    top, bottom = ys[0], ys[-1]
+    _, _, top, bottom = bounds_of(blob["mask"])
     middle = (top + bottom) // 2
 
     density = (blob["mask"] & alpha).sum(axis=1)
-    split = middle - 25 + int(np.argmin(density[middle - 25:middle + 25]))
+    window = max(10, (bottom - top) // 5)
+    split = middle - window + int(np.argmin(density[middle - window:middle + window]))
 
     upper = blob["mask"].copy()
     upper[split:] = False
@@ -58,26 +127,32 @@ def split_merged(blob, alpha):
     ]
 
 
-def bounds_of(blob):
-    ys = np.where(blob["mask"].any(axis=1))[0]
-    xs = np.where(blob["mask"].any(axis=0))[0]
-
-    return xs[0], xs[-1] + 1, ys[0], ys[-1] + 1
-
-
 def group_rows(blobs):
+    heights = [bounds_of(blob["mask"])[3] - bounds_of(blob["mask"])[2] for blob in blobs]
+    gap = float(np.median(heights)) * ROW_GAP_RATIO
     rows = []
 
-    for blob in sorted(blobs, key=lambda b: bounds_of(b)[3]):
-        if rows and bounds_of(blob)[3] - bounds_of(rows[-1][-1])[3] <= ROW_GAP:
+    for blob in sorted(blobs, key=lambda b: bounds_of(b["mask"])[3]):
+        if rows and bounds_of(blob["mask"])[3] - bounds_of(rows[-1][-1]["mask"])[3] <= gap:
             rows[-1].append(blob)
         else:
             rows.append([blob])
 
     for row in rows:
-        row.sort(key=lambda b: bounds_of(b)[0])
+        row.sort(key=lambda b: bounds_of(b["mask"])[0])
 
     return rows
+
+
+def pad_row(row, target):
+    """Completa uma linha curta repetindo o frame do meio, o que mantem o ciclo suave."""
+    row = list(row)
+
+    while len(row) < target:
+        middle = len(row) // 2
+        row.insert(middle + 1, row[middle])
+
+    return row
 
 
 def main():
@@ -87,16 +162,37 @@ def main():
     parser.add_argument("--cell", type=int, default=160)
     parser.add_argument("--counts", default="4,6,5,4,6,5,4,6,5,8",
                         help="Quantidade de frames de cada linha, de cima para baixo.")
+    parser.add_argument("--pad-to", default=None,
+                        help="Completa linhas curtas ate esta quantidade por linha.")
+    parser.add_argument("--scale", type=float, default=1.0,
+                        help="Fator de escala aplicado a imagem inteira antes de processar.")
+    parser.add_argument("--remove-background", action="store_true",
+                        help="Remove o fundo claro ligado as bordas da imagem.")
     args = parser.parse_args()
 
     expected = [int(value) for value in args.counts.split(",")]
+    pad_to = [int(value) for value in args.pad_to.split(",")] if args.pad_to else expected
+
     image = Image.open(args.source).convert("RGBA")
     pixels = np.array(image)
+
+    if args.remove_background:
+        pixels = remove_light_background(pixels)
+
+    if args.scale != 1.0:
+        scaled = Image.fromarray(pixels).resize(
+            (round(pixels.shape[1] * args.scale), round(pixels.shape[0] * args.scale)),
+            Image.LANCZOS,
+        )
+        pixels = np.array(scaled)
+
     alpha = pixels[:, :, 3] > ALPHA_THRESHOLD
 
+    detected, typical = detect_blobs(alpha)
     blobs = []
-    for blob in detect_blobs(alpha):
-        if blob["area"] >= MERGED_FRAME_AREA:
+
+    for blob in detected:
+        if blob["area"] > typical * MERGED_BLOB_RATIO:
             blobs.extend(split_merged(blob, alpha))
         else:
             blobs.append(blob)
@@ -107,15 +203,17 @@ def main():
     if counts != expected:
         raise SystemExit(f"Frames detectados por linha {counts}, esperado {expected}.")
 
+    rows = [pad_row(row, target) for row, target in zip(rows, pad_to)]
+
     cell = args.cell
-    columns = max(expected)
+    columns = max(pad_to)
     sheet = Image.new("RGBA", (columns * cell, len(rows) * cell), (0, 0, 0, 0))
 
     for row_index, row in enumerate(rows):
-        baseline = int(np.median([bounds_of(blob)[3] for blob in row]))
+        baseline = int(np.median([bounds_of(blob["mask"])[3] for blob in row]))
 
         for column_index, blob in enumerate(row):
-            x0, x1, y0, y1 = bounds_of(blob)
+            x0, x1, y0, y1 = bounds_of(blob["mask"])
             ys, xs = np.where(blob["mask"] & alpha)
             center_x = int(round(xs.mean()))
 
@@ -126,15 +224,21 @@ def main():
             left = cell // 2 - (center_x - x0)
             top = cell - BOTTOM_PADDING - (baseline - y0)
 
-            if left < 0 or top < 0 or left + frame.width > cell or top + frame.height > cell:
-                print(f"Aviso: frame {row_index},{column_index} ultrapassa a celula (esquerda={left}, topo={top}, direita={left + frame.width - cell}, base={top + frame.height - cell}).")
+            # Se o frame nao cabe na posicao ideal, encosta na borda da celula em vez de cortar.
+            if frame.width <= cell:
+                left = min(max(left, 0), cell - frame.width)
+            if frame.height <= cell:
+                top = min(max(top, 0), cell - frame.height)
+
+            if frame.width > cell or frame.height > cell:
+                print(f"Aviso: frame {row_index},{column_index} e maior que a celula ({frame.width}x{frame.height}) e sera cortado.")
 
             tile = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
             tile.paste(frame, (left, top), frame)
             sheet.paste(tile, (column_index * cell, row_index * cell))
 
     sheet.save(args.output)
-    print(f"Salvo {args.output}: {sheet.width}x{sheet.height}, celulas de {cell}px, linhas {counts}")
+    print(f"Salvo {args.output}: {sheet.width}x{sheet.height}, celulas de {cell}px, linhas {[len(r) for r in rows]}")
 
 
 if __name__ == "__main__":
