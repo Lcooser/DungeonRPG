@@ -52,6 +52,7 @@ import com.dungeonrpg.game.systems.ProgressionSystem;
 import com.dungeonrpg.game.systems.ProjectileSystem;
 import com.dungeonrpg.game.systems.RenderingSystem;
 import com.dungeonrpg.game.systems.ResourceSystem;
+import com.dungeonrpg.game.systems.StatusEffectSystem;
 import com.dungeonrpg.game.tags.PlayerComponent;
 import com.dungeonrpg.game.ui.Hud;
 import com.dungeonrpg.game.world.DungeonMap;
@@ -65,7 +66,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
     private static final int MAX_VIEWPORT_WIDTH = 960;
     private static final int MAX_VIEWPORT_HEIGHT = 540;
 
-    // Teclas de teste (1 dano, 2 gasta recurso, 3 restaura, F1 troca de classe), a remover antes do jogo final.
+    // Test keys (1 damage, 2 spend resource, 3 restore, F1 switch class), to remove before the final game.
     private static final boolean DEBUG_CONTROLS = true;
 
     private static final int MAP_WIDTH = 80;
@@ -113,9 +114,9 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
 
         map = new DungeonMap(MAP_WIDTH, MAP_HEIGHT, System.currentTimeMillis());
 
-        // O sprite é reduzido em tela, então usa mipmaps para não serrilhar.
+        // The sprite is shrunk on screen, so it uses mipmaps to avoid shimmering.
         playerTexture = loadSheet(characterClass.getSheetPath());
-        // A folha de cansaço é opcional, sem ela o personagem usa o idle.
+        // The tired sheet is optional, without it the character uses idle.
         playerTiredTexture = Gdx.files.internal(characterClass.getTiredSheetPath()).exists()
             ? loadSheet(characterClass.getTiredSheetPath())
             : null;
@@ -124,7 +125,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         effects = new Effects(engine);
         monsterFactory = new MonsterFactory(engine, session.getDifficulty().getMonsterSpeedMultiplier());
 
-        hud = new Hud(characterClass, session.getPlayerName(), map, bossName(), this);
+        hud = new Hud(characterClass, session.getPlayerName(), map, bossName(), effects, this);
 
         engine.addSystem(new PlayerInputSystem(hud::isPointerOverButton));
 
@@ -133,7 +134,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         }
 
         engine.addSystem(new MonsterAiSystem());
-        engine.addSystem(new AttackSystem(effects));
+        engine.addSystem(new AttackSystem(effects, map));
         engine.addSystem(new ProjectileSystem(map, effects));
         engine.addSystem(new ProgressionSystem(session.getDifficulty().getPlayerSpeedMultiplier()));
         engine.addSystem(new ExperienceSystem(effects));
@@ -142,6 +143,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         engine.addSystem(new CorpseSystem());
         engine.addSystem(new MovementSystem(map));
         engine.addSystem(new HurtSystem());
+        engine.addSystem(new StatusEffectSystem());
         engine.addSystem(new EffectSystem());
         engine.addSystem(new AnimationSystem());
         engine.addSystem(new CameraSystem(camera, map));
@@ -217,10 +219,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         player.add(collider);
         player.add(stats);
         player.add(new HealthComponent(StatsCalculator.maxHealth(stats)));
-        player.add(new AttackComponent(
-            characterClass.getPrimaryAbility(),
-            characterClass.getSecondaryAbility()
-        ));
+        player.add(new AttackComponent(characterClass.getAbilities()));
 
         if (characterClass.usesMana()) {
             player.add(new ManaComponent(StatsCalculator.maxMana(stats)));

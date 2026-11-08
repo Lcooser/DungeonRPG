@@ -77,7 +77,7 @@ public class HealthSystem extends IteratingSystem {
 
         if (attack != null) {
             attack.attacking = false;
-            attack.requested = null;
+            attack.requestedSlot = -1;
         }
 
         entity.add(new DeadComponent());

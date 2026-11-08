@@ -59,8 +59,14 @@ public class ClassCard extends Table {
 
         add(new Label("SP " + Math.round(StatsCalculator.maxStamina(stats)), white)).padBottom(LINE_SPACING * 2f).row();
 
-        add(new Label("J " + label(characterClass.getPrimaryAbility()), white)).padBottom(LINE_SPACING).row();
-        add(new Label("K " + label(characterClass.getSecondaryAbility()), white)).row();
+        String[] keys = {"J", "K", "L", "I"};
+        Ability[] abilities = characterClass.getAbilities();
+
+        for (int i = 0; i < abilities.length; i++) {
+            add(new Label(keys[i] + " " + abilities[i].getLabel(), i == 0 ? white : gold))
+                .padBottom(LINE_SPACING)
+                .row();
+        }
 
         addListener(new ClickListener() {
             @Override
@@ -72,9 +78,5 @@ public class ClassCard extends Table {
 
     public void setSelected(boolean selected) {
         setBackground(selected ? selectedBackground : normalBackground);
-    }
-
-    private String label(Ability ability) {
-        return ability.name().replace('_', ' ');
     }
 }

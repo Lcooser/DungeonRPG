@@ -86,10 +86,15 @@ public class PlayerInputSystem extends IteratingSystem {
 
         boolean pointerFree = !pointerOverUi.getAsBoolean();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.J) || pointerFree && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            attack.requested = attack.primary;
+        // Holding the basic attack keeps swinging, skills need a fresh press.
+        if (Gdx.input.isKeyPressed(Input.Keys.J) || pointerFree && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            attack.requestedSlot = 0;
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.K) || pointerFree && Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-            attack.requested = attack.secondary;
+            attack.requestedSlot = 1;
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.L) || pointerFree && Gdx.input.isButtonJustPressed(Input.Buttons.MIDDLE)) {
+            attack.requestedSlot = 2;
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+            attack.requestedSlot = 3;
         }
     }
 

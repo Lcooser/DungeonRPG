@@ -75,7 +75,7 @@ public class MonsterFactory implements Disposable {
         monster.add(new FacingComponent());
         monster.add(type.createStats());
         monster.add(new HealthComponent(type.getHealth()));
-        monster.add(new AttackComponent(type.getAttack(), null));
+        monster.add(new AttackComponent(type.getAttack()));
         monster.add(new AiComponent(type.getAggroRange()));
         monster.add(new MonsterComponent(type));
         monster.add(new XpRewardComponent(type.getXpReward()));

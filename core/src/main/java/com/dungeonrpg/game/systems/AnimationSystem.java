@@ -13,6 +13,7 @@ import com.dungeonrpg.game.components.HurtComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.TextureComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
+import com.dungeonrpg.game.rpg.Ability;
 import com.dungeonrpg.game.tags.DeadComponent;
 
 public class AnimationSystem extends IteratingSystem {
@@ -67,11 +68,14 @@ public class AnimationSystem extends IteratingSystem {
 
         animation.stateTime += deltaTime;
 
-        // O ataque segue o relógio do próprio golpe, para o frame de impacto cair no momento do dano.
+        // The swing follows the attack clock so the impact frame lands when the damage does.
         AttackComponent attack = attacks.get(entity);
 
         if (animation.type == AnimationType.ATTACK && attack != null) {
-            animation.stateTime = attack.time;
+            // Multi-hit skills (whirlwind) loop the swing for their whole duration.
+            animation.stateTime = attack.current.getHits() > 1
+                ? attack.time % Ability.ANIMATION_LENGTH
+                : attack.time;
         }
 
         sprite.region = animation.animations
@@ -80,14 +84,15 @@ public class AnimationSystem extends IteratingSystem {
     }
 
     private AnimationType chooseType(Entity entity, boolean moving) {
-        // Morto mantém o último frame, porque a animação de morte não repete.
+        // The dead keep the last frame, since the death animation does not repeat.
         if (deads.has(entity)) return AnimationType.DEATH;
-
-        if (hurts.has(entity)) return AnimationType.HURT;
 
         AttackComponent attack = attacks.get(entity);
 
+        // A swinging player keeps the attack animation even while being hit.
         if (attack != null && attack.attacking) return AnimationType.ATTACK;
+
+        if (hurts.has(entity)) return AnimationType.HURT;
 
         if (moving) return AnimationType.WALK;
 

@@ -13,6 +13,8 @@ import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.HurtComponent;
 import com.dungeonrpg.game.components.MonsterComponent;
 import com.dungeonrpg.game.components.PositionComponent;
+import com.dungeonrpg.game.components.SlowComponent;
+import com.dungeonrpg.game.components.StunComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.rpg.Combat;
 import com.dungeonrpg.game.tags.DeadComponent;
@@ -45,6 +47,12 @@ public class MonsterAiSystem extends IteratingSystem {
     private final ComponentMapper<HurtComponent> hurts =
         ComponentMapper.getFor(HurtComponent.class);
 
+    private final ComponentMapper<StunComponent> stuns =
+        ComponentMapper.getFor(StunComponent.class);
+
+    private final ComponentMapper<SlowComponent> slows =
+        ComponentMapper.getFor(SlowComponent.class);
+
     public MonsterAiSystem() {
         super(Family.all(
             MonsterComponent.class,
@@ -67,7 +75,7 @@ public class MonsterAiSystem extends IteratingSystem {
 
         ImmutableArray<Entity> players = getEngine().getEntitiesFor(LIVING_PLAYERS);
 
-        if (players.size() == 0 || attack.attacking || hurts.has(entity)) return;
+        if (players.size() == 0 || attack.attacking || hurts.has(entity) || stuns.has(entity)) return;
 
         Entity player = players.first();
 
@@ -77,13 +85,16 @@ public class MonsterAiSystem extends IteratingSystem {
 
         if (distance > ais.get(entity).aggroRange || distance == 0f) return;
 
-        if (distance <= attack.primary.getRange() + ATTACK_MARGIN) {
+        if (distance <= attack.primary().getRange() + ATTACK_MARGIN) {
             facings.get(entity).direction = Direction.fromVector(distanceX, distanceY);
-            attack.requested = attack.primary;
+            attack.requestedSlot = 0;
             return;
         }
 
-        velocity.x = distanceX / distance * velocity.speed;
-        velocity.y = distanceY / distance * velocity.speed;
+        SlowComponent slow = slows.get(entity);
+        float speed = slow == null ? velocity.speed : velocity.speed * slow.factor;
+
+        velocity.x = distanceX / distance * speed;
+        velocity.y = distanceY / distance * speed;
     }
 }

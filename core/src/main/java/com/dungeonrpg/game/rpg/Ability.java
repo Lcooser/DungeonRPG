@@ -2,28 +2,42 @@ package com.dungeonrpg.game.rpg;
 
 import com.dungeonrpg.game.effects.EffectType;
 
-/** Ataques e habilidades de jogadores e monstros. */
+/** Attacks and skills of players and monsters. */
 public enum Ability {
-    AXE_SWING(Kind.MELEE, DamageType.PHYSICAL, 18f, 40f, CostType.NONE, 0f, 0.5f, 0.24f, 110f,
-        EffectType.AXE_SLASH, null, null, 0f),
-    HEAVY_SWING(Kind.MELEE, DamageType.PHYSICAL, 36f, 54f, CostType.STAMINA, 25f, 1f, 0.24f, 200f,
-        EffectType.AXE_SLASH, null, null, 0f),
-    MAGIC_BOLT(Kind.PROJECTILE, DamageType.MAGICAL, 14f, 0f, CostType.NONE, 0f, 0.55f, 0.24f, 90f,
-        null, EffectType.MAGIC_BOLT, EffectType.MAGIC_IMPACT, 260f),
-    FIREBALL(Kind.PROJECTILE, DamageType.MAGICAL, 30f, 44f, CostType.MANA, 20f, 1.1f, 0.24f, 160f,
-        null, EffectType.FIREBALL, EffectType.FIREBALL_EXPLOSION, 200f),
-    SKELETON_SLASH(Kind.MELEE, DamageType.PHYSICAL, 14f, 34f, CostType.NONE, 0f, 1.3f, 0.24f, 120f,
-        EffectType.SWORD_SLASH, null, null, 0f),
-    SPIDER_BITE(Kind.MELEE, DamageType.PHYSICAL, 10f, 30f, CostType.NONE, 0f, 0.9f, 0.24f, 80f,
-        EffectType.HIT_SPARK, null, null, 0f),
-    SLIME_LUNGE(Kind.MELEE, DamageType.PHYSICAL, 8f, 28f, CostType.NONE, 0f, 1.2f, 0.24f, 60f,
-        null, null, null, 0f),
-    BOSS_BITE(Kind.MELEE, DamageType.PHYSICAL, 24f, 56f, CostType.NONE, 0f, 1.1f, 0.24f, 220f,
-        EffectType.HIT_SPARK, null, null, 0f);
+    AXE_SWING(melee(DamageType.PHYSICAL, 18f).range(40f).cooldown(0.5f).knockback(110f)
+        .effect(EffectType.AXE_SLASH).icon(EffectType.AXE_SLASH, 2)),
+    WHIRLWIND(area(DamageType.PHYSICAL).multiplier(0.7f).range(56f).cooldown(6f).cost(CostType.STAMINA, 40f)
+        .hits(3, 0.12f, 0.22f).duration(0.66f).knockback(80f)
+        .effect(EffectType.WHIRLWIND).attachedEffect().icon(EffectType.WHIRLWIND, 3)),
+    GROUND_SLAM(area(DamageType.PHYSICAL).multiplier(1.5f).range(64f).forward(28f).cooldown(8f)
+        .cost(CostType.STAMINA, 30f).knockback(40f).stun(1f)
+        .effect(EffectType.GROUND_SLAM).icon(EffectType.GROUND_SLAM, 4)),
+    BERSERKER_RAGE(buff().cooldown(20f).cost(CostType.STAMINA, 35f).buff(6f, 1.3f, 1.15f)
+        .effect(EffectType.RAGE_AURA).icon(EffectType.RAGE_AURA, 4)),
+    MAGIC_BOLT(projectile(DamageType.MAGICAL, 14f).cooldown(0.55f).knockback(90f).speed(260f)
+        .projectileEffect(EffectType.MAGIC_BOLT, EffectType.MAGIC_IMPACT).icon(EffectType.MAGIC_BOLT, 1)),
+    FIREBALL(projectile(DamageType.MAGICAL, 0f).multiplier(1.2f).range(44f).cooldown(2f)
+        .cost(CostType.MANA, 20f).knockback(160f).speed(200f)
+        .projectileEffect(EffectType.FIREBALL, EffectType.FIREBALL_EXPLOSION).icon(EffectType.FIREBALL, 1)),
+    FROST_NOVA(area(DamageType.MAGICAL).multiplier(0.8f).range(72f).cooldown(8f).cost(CostType.MANA, 35f)
+        .knockback(40f).slow(0.5f, 3f).effect(EffectType.FROST_NOVA).icon(EffectType.FROST_NOVA, 4)),
+    ARCANE_BLINK(blink(150f).cooldown(7f).cost(CostType.MANA, 25f)
+        .effect(EffectType.ARCANE_BLINK).icon(EffectType.ARCANE_BLINK, 3)),
+    SKELETON_SLASH(melee(DamageType.PHYSICAL, 14f).range(34f).cooldown(1.3f).knockback(120f)
+        .effect(EffectType.SWORD_SLASH)),
+    SPIDER_BITE(melee(DamageType.PHYSICAL, 10f).range(30f).cooldown(0.9f).knockback(80f)
+        .effect(EffectType.HIT_SPARK)),
+    SLIME_LUNGE(melee(DamageType.PHYSICAL, 8f).range(28f).cooldown(1.2f).knockback(60f)),
+    BOSS_BITE(melee(DamageType.PHYSICAL, 24f).range(56f).cooldown(1.1f).knockback(220f)
+        .effect(EffectType.HIT_SPARK));
 
+    /** How the ability is carried out. */
     public enum Kind {
         MELEE,
-        PROJECTILE
+        PROJECTILE,
+        AREA,
+        BUFF,
+        TELEPORT
     }
 
     public enum DamageType {
@@ -37,50 +51,224 @@ public enum Ability {
         MANA
     }
 
+    // Length of the attack animation (5 frames of 0.08s), also the default ability duration.
+    public static final float ANIMATION_LENGTH = 0.4f;
+
     private final Kind kind;
     private final DamageType damageType;
     private final float baseDamage;
-    // Alcance do golpe à frente (corpo a corpo) ou raio da explosão (projétil, 0 se não explode).
+    // When above zero, damage is this fraction of the caster's primary ability damage.
+    private final float damageMultiplier;
+    // Reach in front (melee), blast radius (area, explosive projectile).
     private final float range;
+    // Offset of the blast center in front of the caster.
+    private final float forward;
     private final CostType costType;
     private final float cost;
     private final float cooldown;
-    // Momento do ataque em que o golpe acerta, alinhado ao frame de impacto da animação.
+    // When the first hit lands, aligned with the impact frame of the animation.
     private final float windup;
+    private final float duration;
+    private final int hits;
+    private final float hitInterval;
     private final float knockback;
+    private final float stunSeconds;
+    private final float slowFactor;
+    private final float slowSeconds;
+    private final float buffSeconds;
+    private final float buffDamage;
+    private final float buffSpeed;
+    private final float blinkDistance;
+    private final float projectileSpeed;
     private final EffectType effect;
+    private final boolean effectAttached;
     private final EffectType projectileEffect;
     private final EffectType impactEffect;
-    private final float projectileSpeed;
+    private final EffectType iconEffect;
+    private final int iconFrame;
 
-    Ability(
-        Kind kind,
-        DamageType damageType,
-        float baseDamage,
-        float range,
-        CostType costType,
-        float cost,
-        float cooldown,
-        float windup,
-        float knockback,
-        EffectType effect,
-        EffectType projectileEffect,
-        EffectType impactEffect,
-        float projectileSpeed
-    ) {
-        this.kind = kind;
-        this.damageType = damageType;
-        this.baseDamage = baseDamage;
-        this.range = range;
-        this.costType = costType;
-        this.cost = cost;
-        this.cooldown = cooldown;
-        this.windup = windup;
-        this.knockback = knockback;
-        this.effect = effect;
-        this.projectileEffect = projectileEffect;
-        this.impactEffect = impactEffect;
-        this.projectileSpeed = projectileSpeed;
+    Ability(Builder builder) {
+        kind = builder.kind;
+        damageType = builder.damageType;
+        baseDamage = builder.baseDamage;
+        damageMultiplier = builder.damageMultiplier;
+        range = builder.range;
+        forward = builder.forward;
+        costType = builder.costType;
+        cost = builder.cost;
+        cooldown = builder.cooldown;
+        windup = builder.windup;
+        duration = builder.duration;
+        hits = builder.hits;
+        hitInterval = builder.hitInterval;
+        knockback = builder.knockback;
+        stunSeconds = builder.stunSeconds;
+        slowFactor = builder.slowFactor;
+        slowSeconds = builder.slowSeconds;
+        buffSeconds = builder.buffSeconds;
+        buffDamage = builder.buffDamage;
+        buffSpeed = builder.buffSpeed;
+        blinkDistance = builder.blinkDistance;
+        projectileSpeed = builder.projectileSpeed;
+        effect = builder.effect;
+        effectAttached = builder.effectAttached;
+        projectileEffect = builder.projectileEffect;
+        impactEffect = builder.impactEffect;
+        iconEffect = builder.iconEffect;
+        iconFrame = builder.iconFrame;
+    }
+
+    private static Builder melee(DamageType type, float damage) {
+        return new Builder(Kind.MELEE, type).damage(damage);
+    }
+
+    private static Builder projectile(DamageType type, float damage) {
+        return new Builder(Kind.PROJECTILE, type).damage(damage);
+    }
+
+    private static Builder area(DamageType type) {
+        return new Builder(Kind.AREA, type);
+    }
+
+    private static Builder buff() {
+        return new Builder(Kind.BUFF, DamageType.PHYSICAL);
+    }
+
+    private static Builder blink(float distance) {
+        Builder builder = new Builder(Kind.TELEPORT, DamageType.MAGICAL);
+        builder.blinkDistance = distance;
+
+        return builder;
+    }
+
+    /** Readable way to describe an ability, since most fields are optional. */
+    private static final class Builder {
+        private final Kind kind;
+        private final DamageType damageType;
+        private float baseDamage;
+        private float damageMultiplier;
+        private float range;
+        private float forward;
+        private CostType costType = CostType.NONE;
+        private float cost;
+        private float cooldown;
+        private float windup = 0.24f;
+        private float duration = ANIMATION_LENGTH;
+        private int hits = 1;
+        private float hitInterval;
+        private float knockback;
+        private float stunSeconds;
+        private float slowFactor = 1f;
+        private float slowSeconds;
+        private float buffSeconds;
+        private float buffDamage = 1f;
+        private float buffSpeed = 1f;
+        private float blinkDistance;
+        private float projectileSpeed;
+        private EffectType effect;
+        private boolean effectAttached;
+        private EffectType projectileEffect;
+        private EffectType impactEffect;
+        private EffectType iconEffect;
+        private int iconFrame;
+
+        private Builder(Kind kind, DamageType damageType) {
+            this.kind = kind;
+            this.damageType = damageType;
+        }
+
+        private Builder damage(float value) {
+            baseDamage = value;
+            return this;
+        }
+
+        private Builder multiplier(float value) {
+            damageMultiplier = value;
+            return this;
+        }
+
+        private Builder range(float value) {
+            range = value;
+            return this;
+        }
+
+        private Builder forward(float value) {
+            forward = value;
+            return this;
+        }
+
+        private Builder cooldown(float value) {
+            cooldown = value;
+            return this;
+        }
+
+        private Builder cost(CostType type, float value) {
+            costType = type;
+            cost = value;
+            return this;
+        }
+
+        private Builder hits(int count, float interval, float firstHit) {
+            hits = count;
+            hitInterval = interval;
+            windup = firstHit;
+            return this;
+        }
+
+        private Builder duration(float value) {
+            duration = value;
+            return this;
+        }
+
+        private Builder knockback(float value) {
+            knockback = value;
+            return this;
+        }
+
+        private Builder stun(float seconds) {
+            stunSeconds = seconds;
+            return this;
+        }
+
+        private Builder slow(float factor, float seconds) {
+            slowFactor = factor;
+            slowSeconds = seconds;
+            return this;
+        }
+
+        private Builder buff(float seconds, float damage, float speed) {
+            buffSeconds = seconds;
+            buffDamage = damage;
+            buffSpeed = speed;
+            return this;
+        }
+
+        private Builder speed(float value) {
+            projectileSpeed = value;
+            return this;
+        }
+
+        private Builder effect(EffectType value) {
+            effect = value;
+            return this;
+        }
+
+        private Builder attachedEffect() {
+            effectAttached = true;
+            return this;
+        }
+
+        private Builder projectileEffect(EffectType projectile, EffectType impact) {
+            projectileEffect = projectile;
+            impactEffect = impact;
+            return this;
+        }
+
+        private Builder icon(EffectType type, int frame) {
+            iconEffect = type;
+            iconFrame = frame;
+            return this;
+        }
     }
 
     public Kind getKind() {
@@ -95,8 +283,16 @@ public enum Ability {
         return baseDamage;
     }
 
+    public float getDamageMultiplier() {
+        return damageMultiplier;
+    }
+
     public float getRange() {
         return range;
+    }
+
+    public float getForward() {
+        return forward;
     }
 
     public CostType getCostType() {
@@ -115,12 +311,60 @@ public enum Ability {
         return windup;
     }
 
+    public float getDuration() {
+        return duration;
+    }
+
+    public int getHits() {
+        return hits;
+    }
+
+    public float getHitInterval() {
+        return hitInterval;
+    }
+
     public float getKnockback() {
         return knockback;
     }
 
+    public float getStunSeconds() {
+        return stunSeconds;
+    }
+
+    public float getSlowFactor() {
+        return slowFactor;
+    }
+
+    public float getSlowSeconds() {
+        return slowSeconds;
+    }
+
+    public float getBuffSeconds() {
+        return buffSeconds;
+    }
+
+    public float getBuffDamage() {
+        return buffDamage;
+    }
+
+    public float getBuffSpeed() {
+        return buffSpeed;
+    }
+
+    public float getBlinkDistance() {
+        return blinkDistance;
+    }
+
+    public float getProjectileSpeed() {
+        return projectileSpeed;
+    }
+
     public EffectType getEffect() {
         return effect;
+    }
+
+    public boolean isEffectAttached() {
+        return effectAttached;
     }
 
     public EffectType getProjectileEffect() {
@@ -131,7 +375,16 @@ public enum Ability {
         return impactEffect;
     }
 
-    public float getProjectileSpeed() {
-        return projectileSpeed;
+    public EffectType getIconEffect() {
+        return iconEffect;
+    }
+
+    public int getIconFrame() {
+        return iconFrame;
+    }
+
+    /** Name shown in the UI. */
+    public String getLabel() {
+        return name().replace('_', ' ');
     }
 }

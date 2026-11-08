@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.dungeonrpg.game.animation.Direction;
+import com.dungeonrpg.game.components.AttachedEffectComponent;
 import com.dungeonrpg.game.components.EffectComponent;
 import com.dungeonrpg.game.components.FloatingTextComponent;
 import com.dungeonrpg.game.components.PositionComponent;
@@ -24,16 +25,15 @@ import com.dungeonrpg.game.tags.PlayerComponent;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** Cria efeitos visuais, projéteis e números de dano a partir da folha effects_sheet.png. */
+/** Creates visual effects, projectiles and floating text from the effect sheets. */
 public class Effects implements Disposable {
 
-    private static final String SHEET_PATH = "sprites/effects_sheet.png";
     private static final int CELL_SIZE = 192;
-    // Efeitos ficam por cima dos personagens.
+    // Effects draw on top of characters.
     private static final int EFFECT_LAYER = 1;
     private static final Color PLAYER_DAMAGE_COLOR = new Color(1f, 0.35f, 0.3f, 1f);
     private static final Color MONSTER_DAMAGE_COLOR = new Color(1f, 1f, 1f, 1f);
-    // Altura do golpe no corpo, para o efeito não nascer nos pés.
+    // Height of a hit on the body, so the effect does not spawn at the feet.
     private static final float HIT_HEIGHT = 10f;
     private static final float HEAD_RATIO = 0.8f;
 
@@ -47,32 +47,39 @@ public class Effects implements Disposable {
         ComponentMapper.getFor(PlayerComponent.class);
 
     private final Engine engine;
-    private final Texture texture;
     private final BitmapFont font;
+    private final Map<EffectType.Sheet, Texture> sheets = new EnumMap<>(EffectType.Sheet.class);
     private final Map<EffectType, Animation<TextureRegion>> animations = new EnumMap<>(EffectType.class);
+    private final Map<EffectType, Array<TextureRegion>> frames = new EnumMap<>(EffectType.class);
 
     public Effects(Engine engine) {
         this.engine = engine;
 
-        // Os efeitos são reduzidos em tela, então usam mipmaps para não serrilhar.
-        texture = new Texture(Gdx.files.internal(SHEET_PATH), true);
-        texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
-
         font = new BitmapFont(Gdx.files.internal("ui/pixel-font.fnt"));
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
-        TextureRegion[][] cells = TextureRegion.split(texture, CELL_SIZE, CELL_SIZE);
+        Map<EffectType.Sheet, TextureRegion[][]> cells = new EnumMap<>(EffectType.Sheet.class);
+
+        for (EffectType.Sheet sheet : EffectType.Sheet.values()) {
+            // Effects are shrunk on screen, so they use mipmaps to avoid shimmering.
+            Texture texture = new Texture(Gdx.files.internal(sheet.getPath()), true);
+            texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+
+            sheets.put(sheet, texture);
+            cells.put(sheet, TextureRegion.split(texture, CELL_SIZE, CELL_SIZE));
+        }
 
         for (EffectType type : EffectType.values()) {
-            Array<TextureRegion> frames = new Array<>(type.getFrames());
+            Array<TextureRegion> typeFrames = new Array<>(type.getFrames());
 
             for (int i = 0; i < type.getFrames(); i++) {
-                frames.add(cells[type.getRow()][i]);
+                typeFrames.add(cells.get(type.getSheet())[type.getRow()][i]);
             }
 
+            frames.put(type, typeFrames);
             animations.put(type, new Animation<>(
                 type.getFrameDuration(),
-                frames,
+                typeFrames,
                 type.isLooping() ? Animation.PlayMode.LOOP : Animation.PlayMode.NORMAL
             ));
         }
@@ -82,7 +89,12 @@ public class Effects implements Disposable {
         return font;
     }
 
-    /** Cria um efeito centrado em (x, y), girado em graus (os efeitos são desenhados virados para a direita). */
+    /** One frame of an effect, used for skill icons. */
+    public TextureRegion getFrame(EffectType type, int frame) {
+        return frames.get(type).get(frame);
+    }
+
+    /** Creates an effect centered at (x, y), rotated in degrees (effects are drawn facing right). */
     public Entity spawn(EffectType type, float x, float y, float rotation) {
         Entity effect = new Entity();
 
@@ -113,6 +125,15 @@ public class Effects implements Disposable {
         return effect;
     }
 
+    /** Creates an effect that follows its owner's center, raised by offsetY. */
+    public Entity spawnAttached(EffectType type, Entity owner, float offsetY) {
+        Entity effect = spawn(type, Combat.centerX(owner), Combat.centerY(owner) + offsetY, 0f);
+
+        effect.add(new AttachedEffectComponent(owner, offsetY));
+
+        return effect;
+    }
+
     public Entity spawnProjectile(Ability ability, boolean fromPlayer, float damage, float x, float y, Direction direction) {
         Entity projectile = spawn(ability.getProjectileEffect(), x, y, direction.getAngle());
 
@@ -128,7 +149,7 @@ public class Effects implements Disposable {
         return projectile;
     }
 
-    /** Faíscas ou sangue no ponto do golpe e o número de dano acima da cabeça do alvo. */
+    /** Sparks or blood at the hit point and the damage number above the target's head. */
     public void spawnHit(Entity target, float damage) {
         boolean isPlayer = players.has(target);
         float x = Combat.centerX(target);
@@ -165,7 +186,10 @@ public class Effects implements Disposable {
 
     @Override
     public void dispose() {
-        texture.dispose();
+        for (Texture texture : sheets.values()) {
+            texture.dispose();
+        }
+
         font.dispose();
     }
 }
