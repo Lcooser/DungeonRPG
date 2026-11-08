@@ -1,0 +1,1046 @@
+[
+  {
+    "name": "skeleton_warrior_t1",
+    "path": "skeleton_warrior_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "skeleton_warrior_t2",
+    "path": "skeleton_warrior_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "skeleton_warrior_t3",
+    "path": "skeleton_warrior_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "skeleton_archer_t1",
+    "path": "skeleton_archer_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "skeleton_archer_t2",
+    "path": "skeleton_archer_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "skeleton_archer_t3",
+    "path": "skeleton_archer_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "necromancer_t1",
+    "path": "necromancer_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "necromancer_t2",
+    "path": "necromancer_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "necromancer_t3",
+    "path": "necromancer_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "giant_spider_t1",
+    "path": "giant_spider_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "giant_spider_t2",
+    "path": "giant_spider_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "giant_spider_t3",
+    "path": "giant_spider_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "venom_broodling_t1",
+    "path": "venom_broodling_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "venom_broodling_t2",
+    "path": "venom_broodling_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "venom_broodling_t3",
+    "path": "venom_broodling_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "cultist_hunter_t1",
+    "path": "cultist_hunter_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "cultist_hunter_t2",
+    "path": "cultist_hunter_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "cultist_hunter_t3",
+    "path": "cultist_hunter_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "fire_imp_t1",
+    "path": "fire_imp_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "fire_imp_t2",
+    "path": "fire_imp_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "fire_imp_t3",
+    "path": "fire_imp_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1408
+    ],
+    "cell": 128,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      4
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "ember_knight_t1",
+    "path": "ember_knight_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "ember_knight_t2",
+    "path": "ember_knight_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "ember_knight_t3",
+    "path": "ember_knight_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "magma_hound_t1",
+    "path": "magma_hound_t1_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "magma_hound_t2",
+    "path": "magma_hound_t2_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "magma_hound_t3",
+    "path": "magma_hound_t3_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "lich_king",
+    "path": "lich_king_sheet.png",
+    "dimensions": [
+      1536,
+      2112
+    ],
+    "cell": 192,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "spider_queen",
+    "path": "spider_queen_sheet.png",
+    "dimensions": [
+      1536,
+      2112
+    ],
+    "cell": 192,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "magma_dragon",
+    "path": "magma_dragon_sheet.png",
+    "dimensions": [
+      1536,
+      2112
+    ],
+    "cell": 192,
+    "rows": 11,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "death_knight",
+    "path": "death_knight_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "soul_wraith",
+    "path": "soul_wraith_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "brood_guard",
+    "path": "brood_guard_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "egg_carrier",
+    "path": "egg_carrier_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "forge_guardian",
+    "path": "forge_guardian_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "flame_cultist",
+    "path": "flame_cultist_sheet.png",
+    "dimensions": [
+      1024,
+      1280
+    ],
+    "cell": 128,
+    "rows": 10,
+    "counts": [
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      4,
+      6,
+      5,
+      8
+    ],
+    "facing_up": "mirrored placeholder, not authentic rear artwork",
+    "side": "compressed placeholder",
+    "animation": "procedural prototype; not hand-animated"
+  },
+  {
+    "name": "soul_barrage",
+    "path": "soul_barrage_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "death_nova",
+    "path": "death_nova_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "summon_undead",
+    "path": "summon_undead_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "venom_spit",
+    "path": "venom_spit_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "web_trap",
+    "path": "web_trap_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "brood_summoning",
+    "path": "brood_summoning_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "dragon_breath",
+    "path": "dragon_breath_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "meteor_rain",
+    "path": "meteor_rain_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  },
+  {
+    "name": "lava_eruption",
+    "path": "lava_eruption_vfx.png",
+    "dimensions": [
+      1152,
+      192
+    ],
+    "cell": 192,
+    "rows": 1,
+    "counts": [
+      6
+    ],
+    "animation": "placeholder visual variations"
+  }
+]

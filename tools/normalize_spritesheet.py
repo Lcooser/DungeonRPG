@@ -6,11 +6,13 @@ do chao fixa por animacao, devolvendo uma grade de celulas CELL x CELL.
 
 Uso:
     python tools/normalize_spritesheet.py art/entrada.png assets/sprites/saida.png \\
-        [--cell 160] [--counts 4,6,5,...] [--pad-to 4,6,5,...] [--scale 0.5] [--remove-background]
+        [--cell 160] [--counts 4,6,5,...] [--pad-to 4,6,5,...] [--scale 0.5] [--remove-background] [--background-threshold 215] [--ignore-last-rows 1]
 
 --counts      quantidade de frames de cada linha da imagem, de cima para baixo.
 --pad-to      completa linhas curtas repetindo o frame do meio, para chegar a esse numero.
 --scale        reduz (ou amplia) a imagem antes de processar, para casar o tamanho com as outras folhas.
+--background-threshold  with --remove-background, the lowest channel value that counts as background (default 215).
+--ignore-last-rows  detected rows at the bottom (for example a projectile row) that are dropped from the output.
 --remove-background  torna transparente o fundo claro ligado as bordas, para folhas sem transparencia.
 
 Os limites de area sao relativos ao tamanho tipico dos frames, entao funciona em folhas de qualquer
@@ -39,13 +41,13 @@ FRINGE_MIN_CHANNEL = 190
 BOTTOM_PADDING = 4
 
 
-def remove_light_background(pixels):
+def remove_light_background(pixels, threshold=BACKGROUND_MIN_CHANNEL):
     """Apaga o fundo claro: o que toca a borda e tambem os vaos grandes dentro da silhueta.
 
     Brilhos pequenos do personagem (olhos, metal) ficam, porque so regioes claras grandes saem.
     """
     rgb = pixels[:, :, :3].astype(int)
-    light = (rgb.min(axis=2) >= BACKGROUND_MIN_CHANNEL) | (pixels[:, :, 3] == 0)
+    light = (rgb.min(axis=2) >= threshold) | (pixels[:, :, 3] == 0)
 
     labels, count = ndimage.label(light)
     border = set(np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]])))
@@ -166,6 +168,8 @@ def main():
                         help="Completa linhas curtas ate esta quantidade por linha.")
     parser.add_argument("--scale", type=float, default=1.0,
                         help="Fator de escala aplicado a imagem inteira antes de processar.")
+    parser.add_argument("--background-threshold", type=int, default=BACKGROUND_MIN_CHANNEL)
+    parser.add_argument("--ignore-last-rows", type=int, default=0)
     parser.add_argument("--remove-background", action="store_true",
                         help="Remove o fundo claro ligado as bordas da imagem.")
     args = parser.parse_args()
@@ -177,7 +181,7 @@ def main():
     pixels = np.array(image)
 
     if args.remove_background:
-        pixels = remove_light_background(pixels)
+        pixels = remove_light_background(pixels, args.background_threshold)
 
     if args.scale != 1.0:
         scaled = Image.fromarray(pixels).resize(
@@ -202,6 +206,9 @@ def main():
 
     if counts != expected:
         raise SystemExit(f"Frames detectados por linha {counts}, esperado {expected}.")
+
+    if args.ignore_last_rows:
+        rows = rows[:-args.ignore_last_rows]
 
     rows = [pad_row(row, target) for row, target in zip(rows, pad_to)]
 

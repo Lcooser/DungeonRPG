@@ -1,0 +1,1770 @@
+{
+  "project": "DungeonRPG",
+  "version": "development-asset-bundle-1",
+  "assets": [
+    {
+      "file": "assets/sprites/monsters/brood_guard_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/cultist_hunter_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/cultist_hunter_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/cultist_hunter_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/death_knight_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/egg_carrier_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/ember_knight_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/ember_knight_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/ember_knight_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/fire_imp_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/fire_imp_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/fire_imp_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/flame_cultist_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/forge_guardian_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/giant_spider_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/giant_spider_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/giant_spider_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/lich_king_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1536,
+        2112
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/magma_dragon_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1536,
+        2112
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/magma_hound_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/magma_hound_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/magma_hound_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/necromancer_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/necromancer_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/necromancer_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/skeleton_archer_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/skeleton_archer_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/skeleton_archer_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/skeleton_warrior_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/skeleton_warrior_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/skeleton_warrior_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/soul_wraith_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/spider_queen_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1536,
+        2112
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        8
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/venom_broodling_t1_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/venom_broodling_t2_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/monsters/venom_broodling_t3_sheet.png",
+      "category": "monster-animation",
+      "size": [
+        1024,
+        1408
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8,
+        4
+      ],
+      "note": "Directional backs/sides and motion derived by software transforms from concept portraits, not hand-drawn"
+    },
+    {
+      "file": "assets/sprites/characters/barbarian_base_sheet.png",
+      "category": "character-base",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original generated sheet resized to exact grid; visually confirm alignment and transparency for individual frames"
+    },
+    {
+      "file": "assets/sprites/characters/mage_base_sheet.png",
+      "category": "character-base",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original generated sheet resized to exact grid; visually confirm alignment and transparency for individual frames"
+    },
+    {
+      "file": "assets/sprites/items/weapon_icons_160.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        1440
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "note": "Grid resized from generated icon atlas, should visually inspect alignment"
+    },
+    {
+      "file": "assets/sprites/items/axe_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/greataxe_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/sword_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/hammer_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/spear_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/staff_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/wand_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/tome_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/items/orb_rarities.png",
+      "category": "item-icons",
+      "size": [
+        1280,
+        160
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 160,
+      "frame_counts": [
+        8
+      ]
+    },
+    {
+      "file": "assets/sprites/characters/barbarian_axe_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/barbarian_greataxe_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/barbarian_sword_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/barbarian_hammer_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/barbarian_spear_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/mage_staff_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/mage_wand_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/mage_tome_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/characters/mage_orb_sheet.png",
+      "category": "character-weapon-animation",
+      "size": [
+        1024,
+        1280
+      ],
+      "mode": "RGBA",
+      "quality": "composited-prototype",
+      "cell_size": 128,
+      "frame_counts": [
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        4,
+        6,
+        5,
+        8
+      ],
+      "note": "Original weapon remains in source animation; extra equipment variant is composited. Must be redrawn before release."
+    },
+    {
+      "file": "assets/sprites/vfx/axe_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        384
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/greataxe_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        384
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/sword_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        576
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/hammer_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        576
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/spear_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        384
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/staff_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        384
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/wand_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        384
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/tome_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        576
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/orb_vfx.png",
+      "category": "weapon-vfx",
+      "size": [
+        1152,
+        384
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        6,
+        6
+      ],
+      "note": "Simple pixel-shaped effects generated deterministically with Pillow"
+    },
+    {
+      "file": "assets/sprites/vfx/whirlwind_vfx.png",
+      "category": "skill-vfx",
+      "size": [
+        1536,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        8
+      ],
+      "note": "Transparent pixel procedural effect; illustrative stand-in, not original previously generated FX"
+    },
+    {
+      "file": "assets/sprites/vfx/ground_slam_vfx.png",
+      "category": "skill-vfx",
+      "size": [
+        1536,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        8
+      ],
+      "note": "Transparent pixel procedural effect; illustrative stand-in, not original previously generated FX"
+    },
+    {
+      "file": "assets/sprites/vfx/berserker_rage_vfx.png",
+      "category": "skill-vfx",
+      "size": [
+        1536,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        8
+      ],
+      "note": "Transparent pixel procedural effect; illustrative stand-in, not original previously generated FX"
+    },
+    {
+      "file": "assets/sprites/vfx/fireball_vfx.png",
+      "category": "skill-vfx",
+      "size": [
+        1536,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        8
+      ],
+      "note": "Transparent pixel procedural effect; illustrative stand-in, not original previously generated FX"
+    },
+    {
+      "file": "assets/sprites/vfx/frost_nova_vfx.png",
+      "category": "skill-vfx",
+      "size": [
+        1536,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        8
+      ],
+      "note": "Transparent pixel procedural effect; illustrative stand-in, not original previously generated FX"
+    },
+    {
+      "file": "assets/sprites/vfx/arcane_blink_vfx.png",
+      "category": "skill-vfx",
+      "size": [
+        1536,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        8
+      ],
+      "note": "Transparent pixel procedural effect; illustrative stand-in, not original previously generated FX"
+    },
+    {
+      "file": "assets/sprites/vfx/brood_summoning_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/venom_spit_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/soul_barrage_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/web_trap_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/dragon_breath_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/meteor_rain_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/summon_undead_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/lava_eruption_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/death_nova_vfx.png",
+      "category": "boss-vfx",
+      "size": [
+        1152,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedural-prototype",
+      "cell_size": 192,
+      "frame_counts": [
+        6
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/arrow_projectile.png",
+      "category": "projectile-vfx",
+      "size": [
+        768,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        4
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/necrotic_bolt_projectile.png",
+      "category": "projectile-vfx",
+      "size": [
+        768,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        4
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/venom_glob_projectile.png",
+      "category": "projectile-vfx",
+      "size": [
+        768,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        4
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/crossbow_bolt_projectile.png",
+      "category": "projectile-vfx",
+      "size": [
+        768,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        4
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/imp_fireball_projectile.png",
+      "category": "projectile-vfx",
+      "size": [
+        768,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        4
+      ]
+    },
+    {
+      "file": "assets/sprites/vfx/magma_breath_projectile.png",
+      "category": "projectile-vfx",
+      "size": [
+        768,
+        192
+      ],
+      "mode": "RGBA",
+      "quality": "procedurally-authored",
+      "cell_size": 192,
+      "frame_counts": [
+        4
+      ]
+    },
+    {
+      "file": "assets/sprites/crypt_tileset.png",
+      "category": "tileset",
+      "size": [
+        1024,
+        512
+      ],
+      "mode": "RGBA",
+      "quality": "generated-art-rescaled",
+      "cell_size": 64,
+      "frame_counts": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "note": "Layout resized to correct dimensions, seamless tiling and collision semantics not guaranteed"
+    }
+  ]
+}
