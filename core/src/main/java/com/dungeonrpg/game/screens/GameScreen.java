@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.dungeonrpg.game.DungeonGame;
+import com.dungeonrpg.game.GameSession;
 import com.dungeonrpg.game.animation.CharacterAnimations;
 import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.AttackComponent;
@@ -69,6 +70,7 @@ public class GameScreen extends ScreenAdapter {
     private static final float PLAYER_SPRITE_SIZE = 72f;
 
     private final DungeonGame game;
+    private final GameSession session;
     private final CharacterClass characterClass;
     private final Engine engine;
     private final ExtendViewport viewport;
@@ -87,7 +89,8 @@ public class GameScreen extends ScreenAdapter {
 
     public GameScreen(DungeonGame game) {
         this.game = game;
-        this.characterClass = game.getPlayerClass();
+        this.session = game.getSession();
+        this.characterClass = session.getCharacterClass();
 
         OrthographicCamera camera = new OrthographicCamera();
 
@@ -111,7 +114,7 @@ public class GameScreen extends ScreenAdapter {
 
         engine = new Engine();
         effects = new Effects(engine);
-        monsterFactory = new MonsterFactory(engine);
+        monsterFactory = new MonsterFactory(engine, session.getDifficulty().getMonsterSpeedMultiplier());
 
         engine.addSystem(new PlayerInputSystem());
 
@@ -178,7 +181,7 @@ public class GameScreen extends ScreenAdapter {
         StatsComponent stats = characterClass.createStats();
 
         VelocityComponent velocity = new VelocityComponent();
-        velocity.speed = StatsCalculator.moveSpeed(stats);
+        velocity.speed = StatsCalculator.moveSpeed(stats) * session.getDifficulty().getPlayerSpeedMultiplier();
 
         // Hitbox nos pés do personagem, menor que o sprite.
         ColliderComponent collider = new ColliderComponent();
@@ -228,7 +231,7 @@ public class GameScreen extends ScreenAdapter {
     private void switchClass() {
         CharacterClass[] classes = CharacterClass.values();
 
-        game.setPlayerClass(classes[(characterClass.ordinal() + 1) % classes.length]);
+        session.setCharacterClass(classes[(characterClass.ordinal() + 1) % classes.length]);
         restart();
     }
 

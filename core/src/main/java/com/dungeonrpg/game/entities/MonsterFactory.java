@@ -28,11 +28,13 @@ public class MonsterFactory implements Disposable {
     private static final float FEET_OFFSET_RATIO = 2f / 72f;
 
     private final Engine engine;
+    private final float speedMultiplier;
     private final Map<MonsterType, Texture> textures = new EnumMap<>(MonsterType.class);
     private final Map<MonsterType, CharacterAnimations> animations = new EnumMap<>(MonsterType.class);
 
-    public MonsterFactory(Engine engine) {
+    public MonsterFactory(Engine engine, float speedMultiplier) {
         this.engine = engine;
+        this.speedMultiplier = speedMultiplier;
     }
 
     /** Cria o monstro com o centro do corpo em (x, y) no mundo. */
@@ -46,7 +48,7 @@ public class MonsterFactory implements Disposable {
         position.y = y - body / 2f;
 
         VelocityComponent velocity = new VelocityComponent();
-        velocity.speed = type.getSpeed();
+        velocity.speed = type.getSpeed() * speedMultiplier;
 
         TextureComponent sprite = new TextureComponent();
         sprite.width = type.getSpriteSize();
