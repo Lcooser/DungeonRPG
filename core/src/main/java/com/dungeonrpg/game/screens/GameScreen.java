@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.dungeonrpg.game.DungeonGame;
 import com.dungeonrpg.game.animation.CharacterAnimations;
 import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
@@ -52,10 +53,12 @@ public class GameScreen extends ScreenAdapter {
     private static final int MAP_WIDTH = 80;
     private static final int MAP_HEIGHT = 60;
 
+    private static final String PLAYER_SHEET_PATH = "sprites/barbarian_sheet.png";
     private static final int PLAYER_SHEET_CELL_SIZE = 160;
     private static final float PLAYER_BODY_SIZE = 32f;
     private static final float PLAYER_SPRITE_SIZE = 72f;
 
+    private final DungeonGame game;
     private final Engine engine;
     private final ExtendViewport viewport;
     private final DungeonMap map;
@@ -64,7 +67,11 @@ public class GameScreen extends ScreenAdapter {
     private final HudSystem hudSystem;
     private final Texture playerTexture;
 
-    public GameScreen() {
+    private boolean restarting;
+
+    public GameScreen(DungeonGame game) {
+        this.game = game;
+
         OrthographicCamera camera = new OrthographicCamera();
 
         viewport = new ExtendViewport(
@@ -79,15 +86,7 @@ public class GameScreen extends ScreenAdapter {
         map = new DungeonMap(MAP_WIDTH, MAP_HEIGHT, System.currentTimeMillis());
 
         // O sprite é reduzido em tela, então usa mipmaps para não serrilhar.
-        playerTexture = new Texture(
-            Gdx.files.internal("sprites/barbarian_sheet.png"),
-            true
-        );
-
-        playerTexture.setFilter(
-            Texture.TextureFilter.MipMapLinearLinear,
-            Texture.TextureFilter.Linear
-        );
+        playerTexture = loadSheet(PLAYER_SHEET_PATH);
 
         engine = new Engine();
 
@@ -109,10 +108,21 @@ public class GameScreen extends ScreenAdapter {
         renderingSystem = new RenderingSystem(camera);
         engine.addSystem(renderingSystem);
 
-        hudSystem = new HudSystem(new Hud(PLAYER_CLASS, map));
+        hudSystem = new HudSystem(new Hud(PLAYER_CLASS, map, this::restart));
         engine.addSystem(hudSystem);
 
         createPlayer();
+    }
+
+    private Texture loadSheet(String path) {
+        Texture texture = new Texture(Gdx.files.internal(path), true);
+
+        texture.setFilter(
+            Texture.TextureFilter.MipMapLinearLinear,
+            Texture.TextureFilter.Linear
+        );
+
+        return texture;
     }
 
     private void createPlayer() {
@@ -161,6 +171,18 @@ public class GameScreen extends ScreenAdapter {
         player.add(new PlayerComponent());
 
         engine.addEntity(player);
+    }
+
+    private void restart() {
+        if (restarting) return;
+
+        restarting = true;
+
+        // A troca de tela fica para depois do frame, senão os recursos seriam liberados durante o desenho.
+        Gdx.app.postRunnable(() -> {
+            game.setScreen(new GameScreen(game));
+            dispose();
+        });
     }
 
     @Override

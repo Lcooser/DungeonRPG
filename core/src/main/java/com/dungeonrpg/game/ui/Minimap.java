@@ -20,7 +20,8 @@ public class Minimap extends Actor {
     private static final int PIXELS_PER_TILE = 2;
     private static final int FRAME_BORDER = 3;
     private static final int REVEAL_RADIUS = 7;
-    private static final float BLINK_PERIOD = 0.5f;
+    private static final int ICON_SIZE = 10;
+    private static final Color ICON_OUTLINE_COLOR = new Color(0.9f, 0.75f, 0.35f, 1f);
 
     private static final int FLOOR_COLOR = Color.rgba8888(0.55f, 0.48f, 0.35f, 1f);
     private static final int WALL_COLOR = Color.rgba8888(0.27f, 0.24f, 0.32f, 1f);
@@ -31,16 +32,17 @@ public class Minimap extends Actor {
     private final Texture texture;
     private final NinePatch frame;
     private final TextureRegion pixel;
+    private final Texture playerIcon;
 
     private float playerTileX;
     private float playerTileY;
     private int lastRevealX = -1;
     private int lastRevealY = -1;
     private boolean dirty;
-    private float time;
 
-    public Minimap(TextureAtlas atlas, DungeonMap map) {
+    public Minimap(TextureAtlas atlas, DungeonMap map, Texture playerIcon) {
         this.map = map;
+        this.playerIcon = playerIcon;
         this.revealed = new boolean[map.getWidth()][map.getHeight()];
         this.frame = atlas.createPatch("minimap-frame");
         this.pixel = atlas.findRegion("pixel");
@@ -107,8 +109,6 @@ public class Minimap extends Actor {
     public void act(float delta) {
         super.act(delta);
 
-        time += delta;
-
         // O envio para a GPU precisa acontecer fora do batch, por isso fica no act.
         if (dirty) {
             texture.draw(pixmap, 0, 0);
@@ -140,19 +140,42 @@ public class Minimap extends Actor {
             false, false
         );
 
-        if (time % (BLINK_PERIOD * 2f) < BLINK_PERIOD) {
-            batch.setColor(1f, 0.85f, 0.2f, parentAlpha);
-            batch.draw(
-                pixel,
-                contentX + (playerTileX - windowX) * PIXELS_PER_TILE - 1f,
-                contentY + (playerTileY - windowY) * PIXELS_PER_TILE - 1f,
-                3f,
-                3f
-            );
-        }
+        drawPlayerIcon(batch, parentAlpha, windowX, windowY, contentX, contentY, contentWidth, contentHeight);
 
         batch.setColor(1f, 1f, 1f, parentAlpha);
         frame.draw(batch, getX(), getY(), getWidth(), getHeight());
+    }
+
+    // O rosto do personagem marca a posição, com uma borda para se destacar do mapa.
+    private void drawPlayerIcon(
+        Batch batch,
+        float parentAlpha,
+        int windowX,
+        int windowY,
+        float contentX,
+        float contentY,
+        float contentWidth,
+        float contentHeight
+    ) {
+        float outlined = ICON_SIZE + 2f;
+
+        float iconX = MathUtils.clamp(
+            MathUtils.floor(contentX + (playerTileX - windowX) * PIXELS_PER_TILE - outlined / 2f),
+            contentX,
+            contentX + contentWidth - outlined
+        );
+
+        float iconY = MathUtils.clamp(
+            MathUtils.floor(contentY + (playerTileY - windowY) * PIXELS_PER_TILE - outlined / 2f),
+            contentY,
+            contentY + contentHeight - outlined
+        );
+
+        batch.setColor(ICON_OUTLINE_COLOR.r, ICON_OUTLINE_COLOR.g, ICON_OUTLINE_COLOR.b, parentAlpha);
+        batch.draw(pixel, iconX, iconY, outlined, outlined);
+
+        batch.setColor(1f, 1f, 1f, parentAlpha);
+        batch.draw(playerIcon, iconX + 1f, iconY + 1f, ICON_SIZE, ICON_SIZE);
     }
 
     public void dispose() {

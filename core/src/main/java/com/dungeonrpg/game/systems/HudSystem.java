@@ -8,6 +8,7 @@ import com.dungeonrpg.game.components.HealthComponent;
 import com.dungeonrpg.game.components.ManaComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
+import com.dungeonrpg.game.tags.DeadComponent;
 import com.dungeonrpg.game.tags.PlayerComponent;
 import com.dungeonrpg.game.ui.Hud;
 
@@ -24,6 +25,9 @@ public class HudSystem extends IteratingSystem {
 
     private final ComponentMapper<PositionComponent> positions =
         ComponentMapper.getFor(PositionComponent.class);
+
+    private final ComponentMapper<DeadComponent> deads =
+        ComponentMapper.getFor(DeadComponent.class);
 
     private final Hud hud;
 
@@ -52,6 +56,8 @@ public class HudSystem extends IteratingSystem {
             staminas.get(entity),
             positions.get(entity)
         );
+
+        hud.setDead(deads.has(entity));
     }
 
     public void resize(int width, int height) {

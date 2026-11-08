@@ -1,6 +1,7 @@
 package com.dungeonrpg.game.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -34,12 +35,15 @@ public class Hud {
     private final TextureAtlas atlas;
     private final BitmapFont font;
     private final Texture portraitTexture;
+    private final Texture iconTexture;
     private final PixelBar healthBar;
     private final PixelBar manaBar;
     private final PixelBar staminaBar;
     private final Minimap minimap;
+    private final GameOverOverlay gameOver;
+    private final Runnable onRestart;
 
-    public Hud(CharacterClass characterClass, DungeonMap map) {
+    public Hud(CharacterClass characterClass, DungeonMap map, Runnable onRestart) {
         viewport = new ScreenViewport();
         applyPixelScale(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -55,13 +59,19 @@ public class Hud {
         );
         portraitTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
+        // Versão pequena do rosto, desenhada no minimapa no lugar do jogador.
+        iconTexture = new Texture(
+            Gdx.files.internal("ui/portrait_" + characterClass.name().toLowerCase() + "_icon.png")
+        );
+        iconTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
         healthBar = new PixelBar(atlas, "bar-red", font, BAR_WIDTH, BAR_HEIGHT);
         staminaBar = new PixelBar(atlas, "bar-yellow", font, BAR_WIDTH, BAR_HEIGHT);
         manaBar = characterClass.usesMana()
             ? new PixelBar(atlas, "bar-blue", font, BAR_WIDTH, BAR_HEIGHT)
             : null;
 
-        minimap = new Minimap(atlas, map);
+        minimap = new Minimap(atlas, map, iconTexture);
 
         Table info = new Table();
         info.add(new Label(characterClass.name(), new Label.LabelStyle(font, Color.WHITE)))
@@ -84,6 +94,10 @@ public class Hud {
         root.add(minimap).top().right();
 
         stage.addActor(root);
+
+        gameOver = new GameOverOverlay(atlas, font, onRestart);
+        stage.addActor(gameOver);
+        this.onRestart = onRestart;
     }
 
     private void addBar(Table table, PixelBar bar) {
@@ -109,6 +123,19 @@ public class Hud {
         minimap.updatePlayer(position.x, position.y);
     }
 
+    /** Mostra a tela de game over enquanto o personagem estiver morto. */
+    public void setDead(boolean dead) {
+        if (dead == gameOver.isShown()) return;
+
+        if (dead) {
+            gameOver.show();
+            Gdx.input.setInputProcessor(stage);
+        } else {
+            gameOver.hide();
+            Gdx.input.setInputProcessor(null);
+        }
+    }
+
     // Escala inteira, senão a pixel art fica com pixels de tamanhos diferentes.
     private void applyPixelScale(int width, int height) {
         int scale = Math.max(1, Math.round(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT)));
@@ -118,6 +145,11 @@ public class Hud {
 
     public void render(float deltaTime) {
         viewport.apply();
+
+        if (gameOver.isInteractive() && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            onRestart.run();
+        }
+
         stage.act(deltaTime);
         stage.draw();
     }
@@ -128,10 +160,15 @@ public class Hud {
     }
 
     public void dispose() {
+        if (Gdx.input.getInputProcessor() == stage) {
+            Gdx.input.setInputProcessor(null);
+        }
+
         minimap.dispose();
         stage.dispose();
         atlas.dispose();
         font.dispose();
         portraitTexture.dispose();
+        iconTexture.dispose();
     }
 }
