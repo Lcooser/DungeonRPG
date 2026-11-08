@@ -15,6 +15,7 @@ import com.dungeonrpg.game.GameSession;
 import com.dungeonrpg.game.animation.CharacterAnimations;
 import com.dungeonrpg.game.components.AnimationComponent;
 import com.dungeonrpg.game.components.AttackComponent;
+import com.dungeonrpg.game.components.EquipmentComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
 import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.HealthComponent;
@@ -28,6 +29,8 @@ import com.dungeonrpg.game.components.VelocityComponent;
 import com.dungeonrpg.game.effects.Effects;
 import com.dungeonrpg.game.entities.MonsterFactory;
 import com.dungeonrpg.game.entities.MonsterType;
+import com.dungeonrpg.game.item.ItemDrops;
+import com.dungeonrpg.game.item.ItemIcons;
 import com.dungeonrpg.game.rpg.CharacterClass;
 import com.dungeonrpg.game.rpg.Progression;
 import com.dungeonrpg.game.rpg.StatType;
@@ -43,10 +46,13 @@ import com.dungeonrpg.game.systems.FloatingTextSystem;
 import com.dungeonrpg.game.systems.HealthSystem;
 import com.dungeonrpg.game.systems.HudSystem;
 import com.dungeonrpg.game.systems.HurtSystem;
+import com.dungeonrpg.game.systems.ItemLabelSystem;
+import com.dungeonrpg.game.systems.LootSystem;
 import com.dungeonrpg.game.systems.MapRenderingSystem;
 import com.dungeonrpg.game.systems.MonsterAiSystem;
 import com.dungeonrpg.game.systems.MonsterHealthBarSystem;
 import com.dungeonrpg.game.systems.MovementSystem;
+import com.dungeonrpg.game.systems.PickupSystem;
 import com.dungeonrpg.game.systems.PlayerInputSystem;
 import com.dungeonrpg.game.systems.ProgressionSystem;
 import com.dungeonrpg.game.systems.ProjectileSystem;
@@ -84,6 +90,8 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
     private final DungeonMap map;
     private final Effects effects;
     private final MonsterFactory monsterFactory;
+    private final ItemIcons itemIcons;
+    private final ItemLabelSystem itemLabelSystem;
     private final MapRenderingSystem mapRenderingSystem;
     private final RenderingSystem renderingSystem;
     private final FloatingTextSystem floatingTextSystem;
@@ -124,8 +132,9 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         engine = new Engine();
         effects = new Effects(engine);
         monsterFactory = new MonsterFactory(engine, session.getDifficulty().getMonsterSpeedMultiplier());
+        itemIcons = new ItemIcons();
 
-        hud = new Hud(characterClass, session.getPlayerName(), map, bossName(), effects, this);
+        hud = new Hud(characterClass, session.getPlayerName(), map, bossName(), effects, itemIcons, this);
 
         engine.addSystem(new PlayerInputSystem(hud::isPointerOverButton));
 
@@ -141,6 +150,8 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         engine.addSystem(new ResourceSystem());
         engine.addSystem(new HealthSystem(effects));
         engine.addSystem(new CorpseSystem());
+        engine.addSystem(new LootSystem(new ItemDrops(engine, itemIcons), characterClass));
+        engine.addSystem(new PickupSystem(effects));
         engine.addSystem(new MovementSystem(map));
         engine.addSystem(new HurtSystem());
         engine.addSystem(new StatusEffectSystem());
@@ -156,6 +167,9 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
 
         floatingTextSystem = new FloatingTextSystem(camera, effects.getFont());
         engine.addSystem(floatingTextSystem);
+
+        itemLabelSystem = new ItemLabelSystem(camera, effects.getFont());
+        engine.addSystem(itemLabelSystem);
 
         healthBarSystem = new MonsterHealthBarSystem(camera);
         engine.addSystem(healthBarSystem);
@@ -227,6 +241,7 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
 
         player.add(new StaminaComponent(StatsCalculator.maxStamina(stats)));
         player.add(new LevelComponent());
+        player.add(new EquipmentComponent());
         player.add(new PlayerComponent());
 
         engine.addEntity(player);
@@ -301,6 +316,8 @@ public class GameScreen extends ScreenAdapter implements Hud.Listener {
         mapRenderingSystem.dispose();
         renderingSystem.dispose();
         floatingTextSystem.dispose();
+        itemLabelSystem.dispose();
+        itemIcons.dispose();
         healthBarSystem.dispose();
         hudSystem.dispose();
         effects.dispose();

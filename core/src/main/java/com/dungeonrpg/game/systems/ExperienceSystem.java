@@ -12,7 +12,6 @@ import com.dungeonrpg.game.components.ManaComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.XpRewardComponent;
-import com.dungeonrpg.game.effects.EffectType;
 import com.dungeonrpg.game.effects.Effects;
 import com.dungeonrpg.game.rpg.Combat;
 import com.dungeonrpg.game.rpg.Progression;
@@ -93,7 +92,7 @@ public class ExperienceSystem extends IteratingSystem {
         stamina.current = stamina.max;
         stamina.exhausted = false;
 
-        effects.spawn(EffectType.MAGIC_IMPACT, x, Combat.centerY(player) + 8f, 0f);
+        effects.spawnLevelUp(player);
         effects.spawnText(x, y + LEVEL_TEXT_OFFSET_Y - TEXT_OFFSET_Y, "LEVEL UP", LEVEL_UP_COLOR);
     }
 }

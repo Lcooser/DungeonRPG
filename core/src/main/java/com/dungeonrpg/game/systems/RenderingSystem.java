@@ -38,6 +38,7 @@ public class RenderingSystem extends SortedIteratingSystem {
 
     private final OrthographicCamera camera;
     private final SpriteBatch batch;
+    private final Color scratchColor = new Color();
 
     public RenderingSystem(OrthographicCamera camera) {
         super(Family.all(
@@ -68,7 +69,14 @@ public class RenderingSystem extends SortedIteratingSystem {
 
         if (sprite.region == null) return;
 
-        batch.setColor(tintOf(entity));
+        Color color = tintOf(entity);
+
+        if (sprite.tint != null) {
+            scratchColor.set(color).mul(sprite.tint);
+            color = scratchColor;
+        }
+
+        batch.setColor(color);
 
         float x = position.x + sprite.offsetX;
         float y = position.y + sprite.offsetY;

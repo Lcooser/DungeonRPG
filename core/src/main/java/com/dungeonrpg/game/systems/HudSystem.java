@@ -8,6 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.dungeonrpg.game.components.HealthComponent;
 import com.dungeonrpg.game.components.AttackComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
+import com.dungeonrpg.game.components.EquipmentComponent;
 import com.dungeonrpg.game.components.LevelComponent;
 import com.dungeonrpg.game.components.ManaComponent;
 import com.dungeonrpg.game.components.MonsterComponent;
@@ -29,6 +30,9 @@ public class HudSystem extends IteratingSystem {
         PositionComponent.class,
         ColliderComponent.class
     ).get();
+
+    private final ComponentMapper<EquipmentComponent> equipments =
+        ComponentMapper.getFor(EquipmentComponent.class);
 
     private final ComponentMapper<AttackComponent> attacks =
         ComponentMapper.getFor(AttackComponent.class);
@@ -67,7 +71,8 @@ public class HudSystem extends IteratingSystem {
             PositionComponent.class,
             StatsComponent.class,
             LevelComponent.class,
-            AttackComponent.class
+            AttackComponent.class,
+            EquipmentComponent.class
         ).get(), 6);
 
         this.hud = hud;
@@ -89,7 +94,8 @@ public class HudSystem extends IteratingSystem {
             positions.get(entity),
             stats.get(entity),
             levels.get(entity),
-            attacks.get(entity)
+            attacks.get(entity),
+            equipments.get(entity)
         );
 
         hud.setDead(deads.has(entity));

@@ -12,6 +12,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.dungeonrpg.game.animation.Direction;
+import com.dungeonrpg.game.audio.AudioManager;
+import com.dungeonrpg.game.audio.SoundId;
 import com.dungeonrpg.game.components.AttachedEffectComponent;
 import com.dungeonrpg.game.components.EffectComponent;
 import com.dungeonrpg.game.components.FloatingTextComponent;
@@ -36,6 +38,10 @@ public class Effects implements Disposable {
     // Height of a hit on the body, so the effect does not spawn at the feet.
     private static final float HIT_HEIGHT = 10f;
     private static final float HEAD_RATIO = 0.8f;
+    private static final Color LEVEL_UP_COLOR = new Color(1f, 0.85f, 0.3f, 1f);
+    private static final float LEVEL_UP_LIFT = 14f;
+    private static final float LEVEL_UP_PILLAR_SIZE = 1.7f;
+    private static final float LEVEL_UP_RING_SIZE = 1.1f;
 
     private final ComponentMapper<TextureComponent> textures =
         ComponentMapper.getFor(TextureComponent.class);
@@ -48,6 +54,7 @@ public class Effects implements Disposable {
 
     private final Engine engine;
     private final BitmapFont font;
+    private final AudioManager audio = new AudioManager();
     private final Map<EffectType.Sheet, Texture> sheets = new EnumMap<>(EffectType.Sheet.class);
     private final Map<EffectType, Animation<TextureRegion>> animations = new EnumMap<>(EffectType.class);
     private final Map<EffectType, Array<TextureRegion>> frames = new EnumMap<>(EffectType.class);
@@ -89,6 +96,14 @@ public class Effects implements Disposable {
         return font;
     }
 
+    public AudioManager getAudio() {
+        return audio;
+    }
+
+    public void playSound(SoundId id) {
+        audio.play(id);
+    }
+
     /** One frame of an effect, used for skill icons. */
     public TextureRegion getFrame(EffectType type, int frame) {
         return frames.get(type).get(frame);
@@ -96,13 +111,18 @@ public class Effects implements Disposable {
 
     /** Creates an effect centered at (x, y), rotated in degrees (effects are drawn facing right). */
     public Entity spawn(EffectType type, float x, float y, float rotation) {
+        return spawn(type, x, y, rotation, null, 1f);
+    }
+
+    /** Same as {@link #spawn(EffectType, float, float, float)} with a color tint and a size multiplier. */
+    public Entity spawn(EffectType type, float x, float y, float rotation, Color tint, float sizeMultiplier) {
         Entity effect = new Entity();
 
         PositionComponent position = new PositionComponent();
         position.x = x;
         position.y = y;
 
-        float size = CELL_SIZE * type.getScale();
+        float size = CELL_SIZE * type.getScale() * sizeMultiplier;
 
         TextureComponent sprite = new TextureComponent();
         sprite.width = size;
@@ -111,6 +131,7 @@ public class Effects implements Disposable {
         sprite.offsetY = -size / 2f;
         sprite.rotation = rotation;
         sprite.layer = EFFECT_LAYER;
+        sprite.tint = tint;
 
         EffectComponent animation = new EffectComponent();
         animation.animation = animations.get(type);
@@ -123,6 +144,22 @@ public class Effects implements Disposable {
         engine.addEntity(effect);
 
         return effect;
+    }
+
+    /** Golden pillar and ring around the character that just leveled up. */
+    public void spawnLevelUp(Entity owner) {
+        Entity pillar = spawn(
+            EffectType.ARCANE_BLINK,
+            Combat.centerX(owner),
+            Combat.centerY(owner) + LEVEL_UP_LIFT,
+            0f,
+            LEVEL_UP_COLOR,
+            LEVEL_UP_PILLAR_SIZE
+        );
+        pillar.add(new AttachedEffectComponent(owner, LEVEL_UP_LIFT));
+
+        spawn(EffectType.FROST_NOVA, Combat.centerX(owner), Combat.centerY(owner), 0f, LEVEL_UP_COLOR, LEVEL_UP_RING_SIZE);
+        playSound(SoundId.LEVEL_UP);
     }
 
     /** Creates an effect that follows its owner's center, raised by offsetY. */
@@ -190,6 +227,7 @@ public class Effects implements Disposable {
             texture.dispose();
         }
 
+        audio.dispose();
         font.dispose();
     }
 }

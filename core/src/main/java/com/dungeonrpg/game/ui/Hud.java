@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.dungeonrpg.game.components.AttackComponent;
+import com.dungeonrpg.game.components.EquipmentComponent;
 import com.dungeonrpg.game.components.HealthComponent;
 import com.dungeonrpg.game.components.LevelComponent;
 import com.dungeonrpg.game.components.ManaComponent;
@@ -22,6 +23,7 @@ import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.StatsComponent;
 import com.dungeonrpg.game.effects.Effects;
+import com.dungeonrpg.game.item.ItemIcons;
 import com.dungeonrpg.game.rpg.CharacterClass;
 import com.dungeonrpg.game.rpg.Progression;
 import com.dungeonrpg.game.rpg.StatType;
@@ -59,6 +61,7 @@ public class Hud {
     private static final float ROW_SPACING = 2f;
     private static final float STATS_TOP_SPACING = 6f;
     private static final float PLAYER_CENTER_OFFSET = 16f;
+    private static final float HOTBAR_GAP = 10f;
 
     private final Stage stage;
     private final ScreenViewport viewport;
@@ -74,6 +77,7 @@ public class Hud {
     private final StatsPanel statsPanel;
     private final Minimap minimap;
     private final Hotbar hotbar;
+    private final WeaponSlot weaponSlot;
     private final BossCompass bossCompass;
     private final PixelBar bossBar;
     private final Label bossNameLabel;
@@ -94,6 +98,7 @@ public class Hud {
         DungeonMap map,
         String bossName,
         Effects effects,
+        ItemIcons itemIcons,
         Listener listener
     ) {
         this.listener = listener;
@@ -128,6 +133,7 @@ public class Hud {
         statsPanel = new StatsPanel(atlas, font, listener::onSpendPoint);
         minimap = new Minimap(atlas, map, iconTexture);
         hotbar = new Hotbar(atlas, font, effects, characterClass.getAbilities());
+        weaponSlot = new WeaponSlot(atlas, font, itemIcons);
         bossCompass = new BossCompass(atlas, font, 0f);
         bossBar = new PixelBar(atlas, "bar-red", font, BOSS_BAR_WIDTH, BAR_HEIGHT);
         bossNameLabel = new Label("", new Label.LabelStyle(font, BOSS_NAME_COLOR));
@@ -170,6 +176,7 @@ public class Hud {
         Table bottom = new Table();
         bottom.setFillParent(true);
         bottom.bottom().padBottom(SCREEN_PADDING + 2f);
+        bottom.add(weaponSlot).size(WeaponSlot.SIZE).padRight(HOTBAR_GAP);
         bottom.add(hotbar).size(hotbar.getWidth(), hotbar.getHeight());
         stage.addActor(bottom);
 
@@ -213,7 +220,8 @@ public class Hud {
         PositionComponent position,
         StatsComponent stats,
         LevelComponent level,
-        AttackComponent attack
+        AttackComponent attack,
+        EquipmentComponent equipment
     ) {
         healthBar.setValue(health.current, health.max);
         staminaBar.setValue(stamina.current, stamina.max);
@@ -230,6 +238,7 @@ public class Hud {
 
         statsPanel.update(stats, level);
         hotbar.update(attack, mana, stamina);
+        weaponSlot.setItem(equipment.weapon);
         minimap.updatePlayer(position.x, position.y);
 
         // The position is the corner of the body box, close enough to the center for distances.

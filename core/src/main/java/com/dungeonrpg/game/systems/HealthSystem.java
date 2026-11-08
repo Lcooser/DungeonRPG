@@ -9,6 +9,7 @@ import com.dungeonrpg.game.components.HealthComponent;
 import com.dungeonrpg.game.components.HurtComponent;
 import com.dungeonrpg.game.components.StatsComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
+import com.dungeonrpg.game.audio.SoundId;
 import com.dungeonrpg.game.effects.Effects;
 import com.dungeonrpg.game.rpg.StatsCalculator;
 import com.dungeonrpg.game.tags.DeadComponent;
@@ -63,6 +64,7 @@ public class HealthSystem extends IteratingSystem {
 
         entity.add(new HurtComponent());
         effects.spawnHit(entity, damage);
+        effects.playSound(SoundId.HIT);
     }
 
     private void die(Entity entity) {
@@ -81,5 +83,6 @@ public class HealthSystem extends IteratingSystem {
         }
 
         entity.add(new DeadComponent());
+        effects.playSound(SoundId.DEATH);
     }
 }

@@ -21,7 +21,9 @@ import com.dungeonrpg.game.components.StaminaComponent;
 import com.dungeonrpg.game.components.StatsComponent;
 import com.dungeonrpg.game.components.StunComponent;
 import com.dungeonrpg.game.components.VelocityComponent;
+import com.dungeonrpg.game.audio.SoundId;
 import com.dungeonrpg.game.effects.Effects;
+import com.dungeonrpg.game.item.Equipment;
 import com.dungeonrpg.game.rpg.Ability;
 import com.dungeonrpg.game.rpg.Combat;
 import com.dungeonrpg.game.rpg.StatsCalculator;
@@ -205,12 +207,15 @@ public class AttackSystem extends IteratingSystem {
 
         switch (ability.getKind()) {
             case MELEE:
+                effects.playSound(SoundId.SWING);
                 meleeHit(entity, ability, damage);
                 break;
             case AREA:
+                effects.playSound(SoundId.SWING);
                 areaHit(entity, ability, damage);
                 break;
             default:
+                effects.playSound(SoundId.CAST);
                 launchProjectile(entity, ability, damage);
         }
     }
@@ -231,12 +236,13 @@ public class AttackSystem extends IteratingSystem {
 
     private float rawDamage(Entity entity, Ability ability) {
         StatsComponent entityStats = stats.get(entity);
+        float base = ability.getBaseDamage() + Equipment.weaponDamage(entity);
 
-        if (entityStats == null) return ability.getBaseDamage();
+        if (entityStats == null) return base;
 
         return ability.getDamageType() == Ability.DamageType.PHYSICAL
-            ? StatsCalculator.physicalDamage(entityStats, ability.getBaseDamage())
-            : StatsCalculator.magicalDamage(entityStats, ability.getBaseDamage());
+            ? StatsCalculator.physicalDamage(entityStats, base)
+            : StatsCalculator.magicalDamage(entityStats, base);
     }
 
     private ImmutableArray<Entity> targetsOf(Entity entity) {
@@ -357,6 +363,7 @@ public class AttackSystem extends IteratingSystem {
         ColliderComponent collider = colliders.get(entity);
 
         effects.spawn(ability.getEffect(), Combat.centerX(entity), Combat.centerY(entity) + EFFECT_HEIGHT, 0f);
+        effects.playSound(SoundId.BLINK);
 
         float travelled = 0f;
 

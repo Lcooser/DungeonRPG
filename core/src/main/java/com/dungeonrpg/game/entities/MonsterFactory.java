@@ -12,6 +12,7 @@ import com.dungeonrpg.game.components.AttackComponent;
 import com.dungeonrpg.game.components.ColliderComponent;
 import com.dungeonrpg.game.components.FacingComponent;
 import com.dungeonrpg.game.components.HealthComponent;
+import com.dungeonrpg.game.components.LootComponent;
 import com.dungeonrpg.game.components.MonsterComponent;
 import com.dungeonrpg.game.components.PositionComponent;
 import com.dungeonrpg.game.components.TextureComponent;
@@ -57,6 +58,7 @@ public class MonsterFactory implements Disposable {
         sprite.height = type.getSpriteSize();
         sprite.offsetX = (body - type.getSpriteSize()) / 2f;
         sprite.offsetY = -type.getSpriteSize() * FEET_OFFSET_RATIO;
+        sprite.tint = type.getTint();
 
         ColliderComponent collider = new ColliderComponent();
         collider.width = type.getColliderWidth();
@@ -79,6 +81,7 @@ public class MonsterFactory implements Disposable {
         monster.add(new AiComponent(type.getAggroRange()));
         monster.add(new MonsterComponent(type));
         monster.add(new XpRewardComponent(type.getXpReward()));
+        monster.add(new LootComponent(type.getLootTier()));
 
         if (type.isBoss()) {
             monster.add(new BossComponent());
