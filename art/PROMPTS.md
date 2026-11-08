@@ -165,6 +165,8 @@ Se preferir fases desenhadas à mão, o formato alternativo é um arquivo do Til
 
 ### 4.2 Formato do tileset
 
+**Formato do arquivo:** um único **PNG de 32 bits com transparência** (RGBA). Nada de JPG, nem fundo branco ou xadrez. Tamanho **1024x512 px**, tiles de **64x64 px** em grade exata, sem margem e sem espaçamento entre os tiles. O mapa em si (onde ficam salas e corredores) o jogo gera sozinho, então você **não** manda um arquivo de mapa pronto, só o tileset. Se a IA entregar JPG ou fundo opaco, me envie assim mesmo que eu limpo.
+
 Tiles de 32x32 no jogo. Gere em 64x64 por tile (o dobro) e eu reduzo. Folha de **16 colunas x 8 linhas**, ou seja 1024x512 px.
 
 | Linha | Colunas | Conteúdo |
@@ -235,50 +237,76 @@ Normalizar: não precisa. Salve como `assets/maps/crypt_tileset.png`, `caverns_t
 
 ---
 
-## 5. Mais monstros
+## 5. Monstros com tiers
 
-Mesmos formatos das folhas atuais (10 linhas com direções, ou 4 linhas sem direções para criaturas amorfas). Para os que atiram, adicione os projéteis na folha de efeitos do tema.
+### 5.1 Elenco oficial
 
-### 5.1 Lista
+Cada monstro comum tem **3 tiers visuais**. Nomes das famílias por masmorra (os nomes dos tiers são os do jogo, em estilo RPG):
 
-| Monstro | Tema | Comportamento | Layout |
-|---|---|---|---|
-| Zombie | Crypt | lento, muita vida | 10 linhas |
-| Wraith | Crypt | fantasma, atravessa e persegue | 10 linhas |
-| Bat | Crypt | rápido, voa em zigue-zague | 10 linhas |
-| Goblin Archer | Caverns | ataque à distância, foge se chegarem perto | 10 linhas |
-| Spore Mushroom | Caverns | parado, solta esporos em área | 4 linhas |
-| Cave Troll | Caverns | lento, dano alto, grande | 10 linhas |
-| Fire Imp | Forge | dispara bolas de fogo | 10 linhas |
-| Magma Golem | Forge | muito resistente, soco em área | 10 linhas |
-| Hell Hound | Forge | rápido, investida | 10 linhas |
+| Masmorra | Monstro 1 | Monstro 2 | Monstro 3 | Chefe |
+|---|---|---|---|---|
+| Forgotten Crypt | Skeleton Warrior (Bone Soldier, Bone Captain, Bone Tyrant) | Skeleton Archer (Bone Archer, Bone Ranger, Bone Sniper) | Necromancer (Grave Acolyte, Death Caller, Soul Reaver) | Lich King |
+| Infested Caverns | Giant Spider (Cave Spider, Web Stalker, Venom Weaver) | Venom Broodling (Brood Larva, Venom Broodling, Plague Broodling) | Cultist Hunter (Cult Initiate, Cultist Hunter, Cult Executioner) | Spider Queen |
+| Infernal Forge | Fire Imp (Ember Imp, Fire Imp, Inferno Imp) | Ember Knight (Ember Squire, Ember Knight, Ember Champion) | Magma Hound (Cinder Hound, Magma Hound, Hellfire Hound) | Magma Dragon |
 
-### 5.2 Chefes (um por tema)
+Os atiradores têm projétil: Skeleton Archer (flechas), Necromancer (projétil mágico), Cultist Hunter (besta) e Fire Imp (bola de fogo).
 
-| Chefe | Tema |
-|---|---|
-| Lich King | Crypt |
-| Troll Warlord | Caverns |
-| Magma Dragon | Forge |
+**Tiers visuais**
+- Tier 1: inimigo básico, equipamento mínimo, cores comuns.
+- Tier 2: armadura ou marcas melhores, detalhes marcantes.
+- Tier 3: aparência de elite, brilhos nos detalhes, postura mais agressiva.
 
-Os chefes usam o mesmo layout de 10 linhas e uma **linha extra 11** com 8 frames de um ataque especial voltado para a frente (invocação, pancada em área ou sopro). Células de 192x192 em vez de 128, porque são maiores.
+**Chefes**
+
+| Chefe | Ataques especiais | Lacaios |
+|---|---|---|
+| Lich King | Soul Barrage, Death Nova, Summon Undead | Death Knights, Soul Wraiths |
+| Spider Queen | Venom Spit, Web Trap, Brood Summoning | Brood Guards, Egg Carriers |
+| Magma Dragon | Dragon Breath, Meteor Rain, Lava Eruption | Forge Guardians, Flame Cultists |
+
+### 5.2 Formato para o jogo carregar
+
+O jogo carrega cada tier como **uma folha própria**, no mesmo layout das folhas do esqueleto e da aranha:
+
+- **PNG com transparência**, grade de **8 colunas x 10 linhas**, células de **128x128 px** (folha de 1024x1280).
+- Linhas: 1 frente parado (4 frames), 2 frente andando (6), 3 frente atacando (5), 4 costas parado (4), 5 costas andando (6), 6 costas atacando (5), 7 lado direito parado (4), 8 lado andando (6), 9 lado atacando (5), 10 dano (2) e morte (6). O lado esquerdo o jogo espelha.
+- Criaturas sem direção (lodo, cogumelo): 8 colunas x 4 linhas (parado 4, mover 6, atacar 5, dano 2 + morte 6).
+- **Atiradores:** acrescente a **linha 11** com o projétil em loop (4 frames) voando para a direita.
+- **Chefes:** células de 192x192 e uma linha extra com o ataque especial.
+- **Nome do arquivo:** `art/<monstro>_t<tier>_sprites.png`, por exemplo `skeleton_archer_t2_sprites.png`.
+
+Normalizar (alinha os frames e gera a folha final):
+
+```
+python tools/normalize_spritesheet.py art/skeleton_archer_t2_sprites.png assets/sprites/skeleton_archer_t2_sheet.png
+```
+
+Para ativar a arte nova, troque o nome da folha da entrada correspondente em `MonsterType` (por exemplo, de `"skeleton"` para `"skeleton_t2"`). Hoje os tiers 2 e 3 reaproveitam a folha do tier 1 com uma cor diferente, só para o jogo já ter a progressão de dificuldade e de drops.
+
+**As 3 folhas de conceito** que você gerou (`art/deadly_monsters_concept.png`, `cave_monsters_concept.png` e `fire_monsters_concept.png`) servem como referência visual, mas **não estão nesse layout**: misturam frames, projéteis e efeitos na mesma imagem, sem direções. Use-as como referência de estilo e peça cada monstro e tier de novo na folha padrão.
 
 ### 5.3 Prompts
 
-Monstro com direções:
+Monstro com direções (um tier por folha):
 
 ```
-[STYLE] {DESCRIPTION}. Sprite sheet: canvas 1024x1280 px, grid of 8 columns x 10 rows, each cell 128x128,
-feet on the same baseline, centered. Rows: 1 front idle (4), 2 front walk (6), 3 front attack (5), 4 back idle (4),
-5 back walk (6), 6 back attack (5), 7 right idle (4), 8 right walk (6), 9 right attack (5),
-10 hurt (2) then death (6). {ATTACK DESCRIPTION}.
+[STYLE] {DESCRIPTION}, tier {N} ({TIER LOOK}). Sprite sheet: canvas 1024x1280 px, grid of 8 columns x 10 rows,
+each cell 128x128, feet on the same baseline, centered. Rows: 1 front idle (4), 2 front walk (6),
+3 front attack (5), 4 back idle (4), 5 back walk (6), 6 back attack (5), 7 right idle (4), 8 right walk (6),
+9 right attack (5), 10 hurt (2) then death (6). {ATTACK DESCRIPTION}.
 ```
 
-Monstro sem direções (Spore Mushroom):
+Atirador: o mesmo prompt mais esta frase no fim:
 
 ```
-[STYLE] {DESCRIPTION}. Sheet 1024x512 px, grid of 8 columns x 4 rows, each cell 128x128, same baseline,
-no facing directions. Row 1 idle (4), row 2 move/sway (6), row 3 attack (5), row 4 hurt (2) then death (6).
+Add row 11: the projectile ({PROJECTILE}) as a 4-frame loop flying to the right, centered in each cell.
+```
+
+Criatura sem direção:
+
+```
+[STYLE] {DESCRIPTION}, tier {N}. Sheet 1024x512 px, grid of 8 columns x 4 rows, each cell 128x128, same baseline,
+no facing directions. Row 1 idle (4), row 2 move (6), row 3 attack (5), row 4 hurt (2) then death (6).
 ```
 
 Chefe:
@@ -288,36 +316,29 @@ Chefe:
 Rows 1-10 as the monster layout above. Row 11: special attack facing the camera, 8 frames: {SPECIAL}.
 ```
 
+Para o tier 2 e o tier 3, anexe o tier 1 e peça: `same creature as the attached image, upgraded: {TIER LOOK}`. `{TIER LOOK}` vale: tier 1 `basic gear, ordinary colors`; tier 2 `better armor or markings, distinctive details`; tier 3 `elite look, glowing accents, aggressive posture`.
+
 Descrições sugeridas:
 
 | Monstro | `{DESCRIPTION}` | `{ATTACK DESCRIPTION}` |
 |---|---|---|
-| Zombie | rotting green-gray zombie in tattered clothes, slumped posture, torn arms | slow lunging claw swipe |
-| Wraith | translucent blue-white hooded ghost, no legs, tattered cloak, glowing eyes | cold slash with a trailing mist |
-| Bat | giant dark purple bat, red eyes, leathery wings | dive-bite, wings spread |
-| Goblin Archer | green goblin with leather cap and a short bow | draws the bow and releases an arrow |
-| Cave Troll | huge gray-green troll with a wooden club and fur loincloth | overhead club smash |
-| Fire Imp | small red imp with horns and a tail, holding a fireball | throws a fireball |
-| Magma Golem | rock golem with glowing lava cracks | double-fist ground slam |
-| Hell Hound | black hound with glowing orange eyes and ember fur | pounce with open jaws |
-| Spore Mushroom | big purple mushroom with a face, spots on the cap | releases a puff of spores |
+| Skeleton Archer | skeleton in leather scraps holding a short bow | draws the bow and releases an arrow |
+| Necromancer | hooded skeletal mage with a staff topped by a skull | thrusts the staff, green magic bolt |
+| Venom Broodling | pale larva-like spider with fangs and a venom sac | spits a glob of green venom |
+| Cultist Hunter | hooded cultist with a crossbow and a spider-silk cloak | aims and fires a crossbow bolt |
+| Fire Imp | small horned imp with ember skin | throws a fireball |
+| Ember Knight | knight in blackened armor with glowing seams and a mace | heavy overhead mace strike |
+| Magma Hound | lava-cracked hound with ember fur | pounce with open jaws |
+| Lich King (boss) | skeletal king with a crown, dark robes and a bone staff | green soul bolts |
+| Magma Dragon (boss) | wingless fire dragon, black scales with glowing cracks | tail whip and claw swipe |
 
-Chefes:
+Chefes, linha 11 (`{SPECIAL}`):
 
-| Chefe | `{DESCRIPTION}` | `{SPECIAL}` |
-|---|---|---|
-| Lich King | skeletal king in a tattered crown and dark robes, glowing green eyes, bone staff | raises both arms, green souls rise from the ground |
-| Troll Warlord | giant troll with spiked armor and a huge war club | pounds the ground, shockwave |
-| Magma Dragon | wingless fire dragon, black scales with glowing orange cracks | inhales and breathes a cone of fire |
-
-Normalizar:
-
-```
-python tools/normalize_spritesheet.py art/{monster}_sprites.png assets/sprites/{monster}_sheet.png
-python tools/normalize_spritesheet.py art/{monster}_sprites.png assets/sprites/{monster}_sheet.png --counts 4,6,5,8   # sem direções
-```
-
-Para os chefes de 11 linhas, me avise: preciso estender o normalizador para a linha extra.
+| Chefe | `{SPECIAL}` |
+|---|---|
+| Lich King | raises both arms, green souls rise from the ground |
+| Spider Queen | rears up and spits a spray of venom |
+| Magma Dragon | inhales and breathes a cone of fire |
 
 ---
 
@@ -328,3 +349,38 @@ Para os chefes de 11 linhas, me avise: preciso estender o normalizador para a li
 3. Monstros e chefe do Crypt.
 4. Drops e partículas.
 5. Temas Caverns e Forge.
+
+---
+
+## 7. Itens: raridade e nomes
+
+O jogo já usa os ícones de `weapon_icons.png`. Cada arma tem 8 colunas de evolução, e a coluna decide a raridade:
+
+| Raridade | Colunas | Cor do brilho |
+|---|---|---|
+| Common | 0 e 1 | branco |
+| Rare | 2 e 3 | azul |
+| Epic | 4 e 5 | roxo |
+| Legendary | 6 | laranja |
+| Unique | 7 | vermelho e dourado |
+
+Nomes: cada coluna tem um nome fixo por tipo de arma (por exemplo, o machado vai de *Rusted Hatchet* a *Bloodmoon Reaver*). Raro, épico e lendário ganham um epíteto pelo atributo do bônus: *of the Bear* (força), *of the Fox* (agilidade), *of the Bulwark* (defesa), *of the Sage* (inteligência) e *of Vigor* (vitalidade). O único tem só o nome próprio.
+
+A chance de drop e de raridade por tier de monstro está em `LootTier`.
+
+## 8. Efeito de level up (opcional)
+
+O level up usa hoje os efeitos que já existem, tingidos de dourado. Se quiser um efeito próprio:
+
+```
+[STYLE] Pixel art VFX sheet, transparent background. Canvas 1536x384 px, grid of 8 columns x 2 rows, each cell 192x192.
+Row 1: a golden light pillar rising from the ground with sparkles, 8 frames, bright and ascending then fading.
+Row 2: an expanding golden ring on the floor with small stars, 8 frames.
+```
+
+Normalizar: `python tools/normalize_effects.py art/levelup_vfx.png assets/sprites/levelup_vfx.png --columns 8 --counts 8,8 --clean-alpha 70`.
+
+## 9. Sons
+
+Veja `art/SOUNDS.md`.
+
