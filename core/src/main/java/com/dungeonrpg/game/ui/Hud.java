@@ -19,9 +19,9 @@ import com.dungeonrpg.game.world.DungeonMap;
 
 public class Hud {
 
-    // Tamanho de referência do jogo, usado para escolher a escala do HUD.
-    private static final float DESIGN_WIDTH = 640f;
-    private static final float DESIGN_HEIGHT = 360f;
+    private static final Color GAME_OVER_COLOR = new Color(0.85f, 0.2f, 0.2f, 1f);
+    // Leaves time for the death animation before the panel appears.
+    private static final float GAME_OVER_DELAY = 1.4f;
 
     private static final float SCREEN_PADDING = 6f;
     private static final float PORTRAIT_SIZE = 40f;
@@ -41,11 +41,11 @@ public class Hud {
     private final PixelBar staminaBar;
     private final Minimap minimap;
     private final GameOverOverlay gameOver;
-    private final Runnable onRestart;
+    private final Runnable onRetry;
 
-    public Hud(CharacterClass characterClass, DungeonMap map, Runnable onRestart) {
+    public Hud(CharacterClass characterClass, String playerName, DungeonMap map, Runnable onRetry, Runnable onMenu) {
         viewport = new ScreenViewport();
-        applyPixelScale(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        PixelScale.apply(viewport, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         stage = new Stage(viewport);
         atlas = new TextureAtlas(Gdx.files.internal("ui/hud.atlas"));
@@ -74,7 +74,7 @@ public class Hud {
         minimap = new Minimap(atlas, map, iconTexture);
 
         Table info = new Table();
-        info.add(new Label(characterClass.name(), new Label.LabelStyle(font, Color.WHITE)))
+        info.add(new Label(playerName, new Label.LabelStyle(font, Color.WHITE)))
             .left()
             .padBottom(ROW_SPACING)
             .row();
@@ -95,9 +95,9 @@ public class Hud {
 
         stage.addActor(root);
 
-        gameOver = new GameOverOverlay(atlas, font, onRestart);
+        gameOver = new GameOverOverlay(atlas, font, "GAME OVER", GAME_OVER_COLOR, GAME_OVER_DELAY, onRetry, onMenu);
         stage.addActor(gameOver);
-        this.onRestart = onRestart;
+        this.onRetry = onRetry;
     }
 
     private void addBar(Table table, PixelBar bar) {
@@ -136,18 +136,11 @@ public class Hud {
         }
     }
 
-    // Escala inteira, senão a pixel art fica com pixels de tamanhos diferentes.
-    private void applyPixelScale(int width, int height) {
-        int scale = Math.max(1, Math.round(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT)));
-
-        viewport.setUnitsPerPixel(1f / scale);
-    }
-
     public void render(float deltaTime) {
         viewport.apply();
 
         if (gameOver.isInteractive() && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            onRestart.run();
+            onRetry.run();
         }
 
         stage.act(deltaTime);
@@ -155,7 +148,7 @@ public class Hud {
     }
 
     public void resize(int width, int height) {
-        applyPixelScale(width, height);
+        PixelScale.apply(viewport, width, height);
         viewport.update(width, height, true);
     }
 

@@ -18,7 +18,7 @@ public class PixelButton extends Actor {
     private static final Color SHADOW_COLOR = new Color(0f, 0f, 0f, 0.9f);
 
     private final NinePatch normal;
-    private final NinePatch hover;
+    private final NinePatch highlighted;
     private final BitmapFont font;
     private final GlyphLayout textLayout = new GlyphLayout();
     private final GlyphLayout shadowLayout = new GlyphLayout();
@@ -26,10 +26,11 @@ public class PixelButton extends Actor {
     private final String text;
 
     private float layoutAlpha = -1f;
+    private boolean selected;
 
     public PixelButton(TextureAtlas atlas, BitmapFont font, String text, float width, float height, Runnable onClick) {
         this.normal = atlas.createPatch("button");
-        this.hover = atlas.createPatch("button-over");
+        this.highlighted = atlas.createPatch("button-over");
         this.font = font;
         this.text = text;
 
@@ -45,7 +46,11 @@ public class PixelButton extends Actor {
         addListener(listener);
     }
 
-    // O texto bitmap guarda a cor no layout, então o alpha do fade precisa ser aplicado nele.
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    // Glyph colors are baked into the layout, so fading needs the alpha applied there.
     private void updateLayouts(float alpha) {
         if (alpha == layoutAlpha) return;
 
@@ -69,9 +74,9 @@ public class PixelButton extends Actor {
         batch.setColor(1f, 1f, 1f, alpha);
         updateLayouts(alpha);
 
-        (listener.isOver() ? hover : normal).draw(batch, getX(), getY(), getWidth(), getHeight());
+        (selected || listener.isOver() ? highlighted : normal).draw(batch, getX(), getY(), getWidth(), getHeight());
 
-        // A linha de texto tem 1px de folga acima do glifo.
+        // The line box has 1px of space above the glyph.
         float textTop = getY() + MathUtils.floor((getHeight() + GLYPH_HEIGHT) / 2f) + 1f;
 
         font.draw(batch, shadowLayout, getX() + 1f, textTop - 1f);

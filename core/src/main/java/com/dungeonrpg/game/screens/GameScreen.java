@@ -146,7 +146,7 @@ public class GameScreen extends ScreenAdapter {
         healthBarSystem = new MonsterHealthBarSystem(camera);
         engine.addSystem(healthBarSystem);
 
-        hudSystem = new HudSystem(new Hud(characterClass, map, this::restart));
+        hudSystem = new HudSystem(new Hud(characterClass, session.getPlayerName(), map, this::restart, this::returnToMenu));
         engine.addSystem(hudSystem);
 
         createPlayer();
@@ -221,9 +221,20 @@ public class GameScreen extends ScreenAdapter {
 
         restarting = true;
 
-        // A troca de tela fica para depois do frame, senão os recursos seriam liberados durante o desenho.
+        // Swap after the frame, otherwise resources would be freed while still drawing.
         Gdx.app.postRunnable(() -> {
             game.setScreen(new GameScreen(game));
+            dispose();
+        });
+    }
+
+    private void returnToMenu() {
+        if (restarting) return;
+
+        restarting = true;
+
+        Gdx.app.postRunnable(() -> {
+            game.setScreen(new TitleScreen(game));
             dispose();
         });
     }

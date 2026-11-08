@@ -1,7 +1,7 @@
 package com.dungeonrpg.game;
 
 import com.badlogic.gdx.Game;
-import com.dungeonrpg.game.screens.GameScreen;
+import com.dungeonrpg.game.screens.TitleScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class DungeonGame extends Game {
@@ -10,7 +10,7 @@ public class DungeonGame extends Game {
 
     @Override
     public void create() {
-        setScreen(new GameScreen(this));
+        setScreen(new TitleScreen(this));
     }
 
     public GameSession getSession() {

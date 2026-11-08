@@ -10,41 +10,55 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-/** Tela de game over: escurece o jogo e mostra um painel com o botão de reiniciar. */
+/** Full-screen end panel with a title and two buttons, used for both game over and victory. */
 public class GameOverOverlay extends Table {
 
-    private static final float SHOW_DELAY = 1.4f;
     private static final float FADE_DURATION = 0.6f;
     private static final float TITLE_SCALE = 2f;
     private static final float PANEL_PADDING = 12f;
     private static final float TITLE_SPACING = 12f;
     private static final float BUTTON_WIDTH = 84f;
     private static final float BUTTON_HEIGHT = 20f;
+    private static final float BUTTON_GAP = 8f;
     private static final Color DIM_COLOR = new Color(0f, 0f, 0f, 0.7f);
-    private static final Color TITLE_COLOR = new Color(0.85f, 0.2f, 0.2f, 1f);
 
+    private final float showDelay;
     private boolean shown;
 
-    public GameOverOverlay(TextureAtlas atlas, BitmapFont font, Runnable onRestart) {
+    public GameOverOverlay(
+        TextureAtlas atlas,
+        BitmapFont font,
+        String title,
+        Color titleColor,
+        float showDelay,
+        Runnable onRetry,
+        Runnable onMenu
+    ) {
+        this.showDelay = showDelay;
+
         setFillParent(true);
         setBackground(new TextureRegionDrawable(atlas.findRegion("pixel")).tint(DIM_COLOR));
 
-        Label title = new Label("GAME OVER", new Label.LabelStyle(font, TITLE_COLOR));
-        title.setFontScale(TITLE_SCALE);
+        Label titleLabel = new Label(title, new Label.LabelStyle(font, titleColor));
+        titleLabel.setFontScale(TITLE_SCALE);
 
         Table panel = new Table();
         panel.setBackground(new NinePatchDrawable(atlas.createPatch("panel")));
         panel.pad(PANEL_PADDING);
-        panel.add(title).padBottom(TITLE_SPACING).row();
-        panel.add(new PixelButton(atlas, font, "RESTART", BUTTON_WIDTH, BUTTON_HEIGHT, onRestart))
-            .size(BUTTON_WIDTH, BUTTON_HEIGHT);
+        panel.add(titleLabel).colspan(2).padBottom(TITLE_SPACING).row();
+        panel.add(new PixelButton(atlas, font, "TRY AGAIN", BUTTON_WIDTH, BUTTON_HEIGHT, onRetry))
+            .size(BUTTON_WIDTH, BUTTON_HEIGHT)
+            .padRight(BUTTON_GAP / 2f);
+        panel.add(new PixelButton(atlas, font, "MAIN MENU", BUTTON_WIDTH, BUTTON_HEIGHT, onMenu))
+            .size(BUTTON_WIDTH, BUTTON_HEIGHT)
+            .padLeft(BUTTON_GAP / 2f);
 
         add(panel);
 
         hide();
     }
 
-    /** Aparece depois de uma pausa, para a animação de morte poder terminar. */
+    /** Appears after a pause so the death animation can finish first. */
     public void show() {
         if (shown) return;
 
@@ -55,7 +69,7 @@ public class GameOverOverlay extends Table {
 
         clearActions();
         addAction(Actions.sequence(
-            Actions.delay(SHOW_DELAY),
+            Actions.delay(showDelay),
             Actions.visible(true),
             Actions.touchable(Touchable.enabled),
             Actions.fadeIn(FADE_DURATION)
@@ -74,7 +88,7 @@ public class GameOverOverlay extends Table {
         return shown;
     }
 
-    /** Só aceita cliques e teclas depois que o painel terminou de aparecer. */
+    /** Ignores clicks and keys until the panel has finished appearing. */
     public boolean isInteractive() {
         return shown && getTouchable() == Touchable.enabled;
     }
