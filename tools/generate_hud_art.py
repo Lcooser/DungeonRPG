@@ -3,7 +3,8 @@
 Uso:
     python tools/generate_hud_art.py
 
-Saidas (assets/ui): pixel-font.fnt/.png, hud.atlas/.png e portrait_barbarian.png.
+Saidas (assets/ui): pixel-font.fnt/.png, hud.atlas/.png, portrait_barbarian.png e
+portrait_barbarian_icon.png (versao pequena para o minimapa).
 Dependencia: pillow.
 """
 from pathlib import Path
@@ -163,6 +164,36 @@ def minimap_frame():
     return image
 
 
+def panel_frame():
+    size = 16
+    image = Image.new("RGBA", (size, size), BAR_BACKGROUND)
+    draw = ImageDraw.Draw(image)
+
+    ring(draw, 0, size, OUTLINE, OUTLINE)
+    ring(draw, 1, size, BRASS_LIGHT, BRASS_DARK)
+    ring(draw, 2, size, BRASS, BRASS)
+    ring(draw, 3, size, OUTLINE, OUTLINE)
+
+    # Rebites nos cantos.
+    for point in ((2, 2), (size - 3, 2), (2, size - 3), (size - 3, size - 3)):
+        draw.point(point, fill=BRASS_LIGHT)
+
+    return image
+
+
+def button(hover):
+    size = 12
+    body = (74, 62, 52, 255) if not hover else (104, 86, 62, 255)
+    image = Image.new("RGBA", (size, size), body)
+    draw = ImageDraw.Draw(image)
+
+    ring(draw, 0, size, OUTLINE, OUTLINE)
+    ring(draw, 1, size, BRASS_LIGHT, BRASS_DARK)
+    ring(draw, 2, size, STONE_LIGHT if not hover else BRASS, STONE_DARK)
+
+    return image
+
+
 def bar_fill(colors):
     light, body, shadow, darkest = colors
     rows = [light, body, body, body, shadow, darkest]
@@ -190,6 +221,9 @@ def generate_atlas():
     place("bar-blue", bar_fill(BAR_COLORS["blue"]), 70, 0)
     place("bar-yellow", bar_fill(BAR_COLORS["yellow"]), 74, 0)
     place("pixel", Image.new("RGBA", (1, 1), (255, 255, 255, 255)), 80, 0)
+    place("panel", panel_frame(), 0, 42, split=(5, 5, 5, 5))
+    place("button", button(False), 18, 42, split=(3, 3, 3, 3))
+    place("button-over", button(True), 32, 42, split=(3, 3, 3, 3))
 
     lines = ["hud.png", f"size: {sheet.width}, {sheet.height}", "format: RGBA8888",
              "filter: Nearest, Nearest", "repeat: none"]
@@ -211,6 +245,7 @@ def generate_portrait():
     # Recorte quadrado do rosto na arte original de 1254x1254.
     face = source.crop((415, 75, 835, 495))
     face.resize((32, 32), Image.LANCZOS).save(UI_DIR / "portrait_barbarian.png")
+    face.resize((10, 10), Image.LANCZOS).save(UI_DIR / "portrait_barbarian_icon.png")
 
 
 if __name__ == "__main__":
